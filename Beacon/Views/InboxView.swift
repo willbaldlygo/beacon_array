@@ -4,6 +4,7 @@ struct InboxView: View {
     @State private var items: [QueueItem] = []
     @State private var isLoading = false
     @State private var error: String?
+    @State private var showingCreateNote = false
     
     var body: some View {
         NavigationStack {
@@ -57,6 +58,15 @@ struct InboxView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingCreateNote = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .foregroundStyle(AppTheme.ink)
+                    }
+                }
+                
                 ToolbarItem(placement: .principal) {
                     Text("INBOX")
                         .font(.system(.headline, design: .monospaced))
@@ -73,6 +83,9 @@ struct InboxView: View {
                     }
                     .disabled(isLoading)
                 }
+            }
+            .sheet(isPresented: $showingCreateNote) {
+                CreateNoteView()
             }
             .task {
                 await loadItems()
