@@ -4,7 +4,11 @@ struct SettingsView: View {
     @State private var arrayStatus: ArrayStatus?
     @State private var isConnected = false
     @State private var isChecking = false
+    @State private var isChecking = false
     @State private var lastChecked: Date?
+    @State private var apiKey = ""
+    @State private var showKey = false
+    @State private var isSavingKey = false
     
     var body: some View {
         NavigationStack {
@@ -97,6 +101,7 @@ struct SettingsView: View {
             }
             .task {
                 await checkConnection()
+                loadAPIKey()
             }
         }
     }
@@ -128,6 +133,27 @@ struct SettingsView: View {
                 tags: ["beacon", "test"]
             )
         }
+    }
+    
+    // MARK: - API Key Management
+    
+    private func loadAPIKey() {
+        if let key = KeychainHelper.get(key: "anthropic_api_key") {
+            apiKey = key
+        }
+    }
+    
+    private func saveAPIKey() {
+        isSavingKey = true
+        KeychainHelper.save(key: "anthropic_api_key", value: apiKey)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            isSavingKey = false
+        }
+    }
+    
+    private func clearAPIKey() {
+        KeychainHelper.delete(key: "anthropic_api_key")
+        apiKey = ""
     }
 }
 

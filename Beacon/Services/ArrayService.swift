@@ -72,6 +72,14 @@ actor ArrayService {
         return try await ingest(request)
     }
     
+    /// Get recent conversations for context
+    func getRecentSessions(limit: Int = 5) async throws -> [Conversation] {
+        let url = URL(string: "\(baseURL)/api/v1/sessions/recent?limit=\(limit)")!
+        let (data, response) = try await session.data(from: url)
+        try validateResponse(response)
+        return try decoder.decode([Conversation].self, from: data)
+    }
+    
     // MARK: - Queue
     
     /// Get items in the inbox queue

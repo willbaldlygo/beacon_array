@@ -1,9 +1,7 @@
 import SwiftUI
 
 struct ChatView: View {
-    @State private var messageText = ""
-    @State private var messages: [Message] = []
-    @State private var isLoading = false
+    @StateObject private var viewModel = ChatViewModel()
     @State private var showingSaveAlert = false
     @State private var saveResult: String?
     
@@ -19,16 +17,31 @@ struct ChatView: View {
                     ScrollViewReader { proxy in
                         ScrollView {
                             LazyVStack(spacing: 20) {
-                                ForEach(messages) { message in
+                                ForEach(viewModel.conversation.messages) { message in
                                     MondrianMessageBubble(message: message)
                                         .id(message.id)
+                                }
+                                
+                                if viewModel.isLoading {
+                                    HStack {
+                                        ProgressView()
+                                            .padding()
+                                        Spacer()
+                                    }
+                                }
+                                
+                                if let error = viewModel.error {
+                                    Text("Error: \(error)")
+                                        .font(.system(.caption, design: .monospaced))
+                                        .foregroundColor(AppTheme.accentRed)
+                                        .padding()
                                 }
                             }
                             .padding(.vertical, 24)
                             .padding(.horizontal, 16)
                         }
-                        .onChange(of: messages.count) { _, _ in
-                            if let lastMessage = messages.last {
+                        .onChange(of: viewModel.conversation.messages.count) { _, _ in
+                            if let lastMessage = viewModel.conversation.messages.last {
                                 withAnimation {
                                     proxy.scrollTo(lastMessage.id, anchor: .bottom)
                                 }
@@ -42,7 +55,7 @@ struct ChatView: View {
                             .background(AppTheme.ink)
                         
                         HStack(alignment: .bottom, spacing: 12) {
-                            TextField("Enter message...", text: $messageText, axis: .vertical)
+                            TextField("Enter message...", text: $viewModel.currentInput, axis: .vertical)
                                 .font(.system(.body, design: .serif))
                                 .textFieldStyle(.plain)
                                 .padding(16)
@@ -54,19 +67,21 @@ struct ChatView: View {
                                 .frame(minHeight: 50)
                             
                             Button {
-                                sendMessage()
+                                Task {
+                                    await viewModel.sendMessage()
+                                }
                             } label: {
                                 Image(systemName: "arrow.up")
                                     .font(.system(size: 20, weight: .bold))
                                     .foregroundStyle(AppTheme.paper)
                                     .frame(width: 50, height: 50)
-                                    .background(messageText.isEmpty ? Color.gray : AppTheme.accentRed)
+                                    .background(viewModel.currentInput.isEmpty ? Color.gray : AppTheme.accentRed)
                                     .overlay(
                                         Rectangle()
                                             .stroke(AppTheme.ink, lineWidth: 1)
                                     )
                             }
-                            .disabled(messageText.isEmpty || isLoading)
+                            .disabled(viewModel.currentInput.isEmpty || viewModel.isLoading)
                         }
                         .padding(16)
                         .background(AppTheme.background)
@@ -84,74 +99,23 @@ struct ChatView: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        saveConversation()
+                        // Manually triggering a save if desired, 
+                        // though ViewModel logs to array after every message
+                        // We could show "Saved" status instead
                     } label: {
-                        Image(systemName: "square.and.arrow.down")
-                            .foregroundStyle(AppTheme.ink)
+                        Image(systemName: "icloud.and.arrow.up")
+                            .foregroundStyle(AppTheme.ink.opacity(0.3)) // Disabled look as it's auto
                     }
-                    .disabled(messages.isEmpty)
+                    .disabled(true)
                 }
                 
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        messages.removeAll()
+                        viewModel.clearChat()
                     } label: {
                         Image(systemName: "trash")
                             .foregroundStyle(AppTheme.ink)
                     }
-                }
-            }
-            .alert("STATUS", isPresented: $showingSaveAlert) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(saveResult ?? "Conversation saved to Array.")
-            }
-        }
-    }
-    
-    private func sendMessage() {
-        guard !messageText.isEmpty else { return }
-        
-        let userMessage = Message(role: .user, content: messageText)
-        messages.append(userMessage)
-        
-        let input = messageText
-        messageText = ""
-        isLoading = true
-        
-        Task {
-            try? await Task.sleep(for: .milliseconds(500))
-            
-            let response = Message(
-                role: .assistant,
-                content: "Beacon (Layer 1) acknowledges reception of: \"\(input)\"\n\nInference engine offline. Message logged."
-            )
-            
-            await MainActor.run {
-                messages.append(response)
-                isLoading = false
-            }
-        }
-    }
-    
-    private func saveConversation() {
-        guard !messages.isEmpty else { return }
-        
-        Task {
-            do {
-                var conversation = Conversation(title: "Beacon Chat")
-                for msg in messages {
-                    conversation.addMessage(msg)
-                }
-                let result = try await ArrayService.shared.saveConversation(conversation)
-                await MainActor.run {
-                    saveResult = result.message
-                    showingSaveAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    saveResult = "Error: \(error.localizedDescription)"
-                    showingSaveAlert = true
                 }
             }
         }
