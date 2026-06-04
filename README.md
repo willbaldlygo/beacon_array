@@ -1,6 +1,6 @@
 # Beacon
 
-An experimental, personal iOS app built to provide multiple avenues for interacting with my home server. The home server is a Raspberry Pi5 based system, exposed via cloudflare tunnel and various API gateways, and called the Array. It contains all my research, work related documents, and various workflows, skills.md files, and detailed daily activity logs which are accesible to all the AI agents I work with on a daily basis.
+An experimental, personal iOS app built to provide multiple avenues for interacting with my home server. The home server is a Raspberry Pi5 based system, exposed via cloudflare tunnel and various API gateways, and called the Array. It contains all my research (either PDFs or .md transcripts/summaries of research sources) and work related documents (as .md files), as well as various workflows, skills.md files, and detailed daily activity logs which are accessible to all the AI agents I work with on a daily basis on either my iPhone or MacBook. Tailscale provides connectivity via mobile data while away from my home wifi.
 
 Built with SwiftUI, styled with a simple Mondrian-inspired design system.
 
@@ -12,7 +12,7 @@ In an attempt to minimise the number of apps I use each day (because ADHD) Beaco
 - **Chat** — conversational AI via Claude Haiku (cloud) or Gemma 4 E4B (on-device), with options to attach URLs or files from the array as extra context
 - **Voice** — record or import audio and transcribe entirely on-device via WhisperKit
 - **Tasks** — view and manage tasks from a To-Do List stored on the array
-- **File Exlorer** — browse and edit files from the array
+- **File Explorer** — browse and edit files from the array
 - **PM Mode** — structured project management check-in workflow based on a stored skill.md (`/pm`)
 - **Log Mode** — end-of-session logging to the Array's sessions database (`/log`)
 - **Quick Notes** - a very simple UI for adding notes as .md files to any folder on the array
