@@ -1,6 +1,7 @@
 import Foundation
 import Speech
 import AVFoundation
+import Combine
 
 class NoteService: ObservableObject {
     @Published var isRecording = false
@@ -10,7 +11,7 @@ class NoteService: ObservableObject {
     
     private var audioRecorder: AVAudioRecorder?
     private var audioFileURL: URL?
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-GB"))
+    private let speechRecognizer = SFSpeechRecognizer(locale: .current) // Use device locale
     
     // Existing service
     private let arrayService = ArrayService.shared

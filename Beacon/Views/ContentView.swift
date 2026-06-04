@@ -26,11 +26,25 @@ struct ContentView: View {
                     Label("Chat", systemImage: "bubble.left.and.bubble.right")
                 }
             
-            InboxView()
-                .tabItem {
-                    Label("Inbox", systemImage: "tray")
-                }
+            NavigationStack {
+                TasksView()
+            }
+            .tabItem {
+                Label("Tasks", systemImage: "checklist")
+            }
             
+            NavigationStack {
+                FileBrowserView()
+            }
+            .tabItem {
+                Label("Files", systemImage: "folder")
+            }
+            
+            TranscriptionView()
+                .tabItem {
+                    Label("Voice", systemImage: "waveform")
+                }
+
             SettingsView()
                 .tabItem {
                     Label("System", systemImage: "gearshape")

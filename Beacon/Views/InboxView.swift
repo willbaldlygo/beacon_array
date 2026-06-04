@@ -57,14 +57,23 @@ struct InboxView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(AppTheme.background, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         showingCreateNote = true
                     } label: {
-                        Image(systemName: "plus")
-                            .foregroundStyle(AppTheme.ink)
+                        Circle()
+                            .fill(AppTheme.accentRed)
+                            .frame(width: 36, height: 36)
+                            .overlay(
+                                Image(systemName: "plus")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundStyle(Color.white)
+                            )
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 ToolbarItem(placement: .principal) {
@@ -78,10 +87,18 @@ struct InboxView: View {
                     Button {
                         Task { await loadItems() }
                     } label: {
-                        Image(systemName: "arrow.clockwise")
-                            .foregroundStyle(AppTheme.ink)
+                        Circle()
+                            .fill(AppTheme.accentBlue)
+                            .frame(width: 36, height: 36)
+                            .overlay(
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundStyle(Color.white)
+                            )
                     }
+                    .buttonStyle(.plain)
                     .disabled(isLoading)
+                    .opacity(isLoading ? 0.5 : 1.0)
                 }
             }
             .sheet(isPresented: $showingCreateNote) {
@@ -184,19 +201,4 @@ struct MondrianInboxRow: View {
     }
 }
 
-struct MondrianButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(.subheadline, design: .monospaced))
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
-            .background(configuration.isPressed ? AppTheme.ink : AppTheme.paper)
-            .foregroundStyle(configuration.isPressed ? AppTheme.paper : AppTheme.ink)
-            .overlay(
-                Rectangle()
-                    .stroke(AppTheme.ink, lineWidth: 1)
-            )
-            .offset(x: configuration.isPressed ? 2 : 0, y: configuration.isPressed ? 2 : 0)
-            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
-    }
-}
+

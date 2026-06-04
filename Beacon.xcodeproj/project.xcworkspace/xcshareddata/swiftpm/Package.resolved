@@ -1,0 +1,33 @@
+{
+  "originHash" : "b74d0cefa9352717f2e4737a533340cf5541473d65a1380adbd3c3b4ed5f08df",
+  "pins" : [
+    {
+      "identity" : "litert-lm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google-ai-edge/LiteRT-LM",
+      "state" : {
+        "branch" : "main",
+        "revision" : "5b4524a3ae3dc9da3f18263b27d6c8da1b6b58ba"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "state" : {
+        "revision" : "ca37474853a4b5f59a22c74bfdd449b1f6bc4cc2",
+        "version" : "1.8.1"
+      }
+    },
+    {
+      "identity" : "whisperkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/argmaxinc/WhisperKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "94cf6b120cf9dde32d9dea01acc326e77371302c"
+      }
+    }
+  ],
+  "version" : 3
+}

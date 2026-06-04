@@ -5,10 +5,10 @@ import SwiftUI
 enum AppTheme {
     static let background = Color(hex: "F9F9F7") // Warm Paper
     static let ink = Color(hex: "1A1A1A")        // Deep Charcoal
-    static let paper = Color(hex: "FFFFFF")      // Pure White
-    static let accentRed = Color(hex: "E63946")  // Primary Red
-    static let accentBlue = Color(hex: "1D3557") // Deep Blue
-    static let accentOchre = Color(hex: "DCA545") // User's Yellow Ochre
+    static let paper = Color(hex: "FFFFFF")      // Pure White (Elements on Background)
+    static let accentRed = Color(hex: "C4443B")  // Satellite A: Terracotta Red
+    static let accentBlue = Color(hex: "09737D") // Satellite B: Teal
+    static let accentOchre = Color(hex: "DCA545") // Core: Yellow Ochre
     
     static let border: CGFloat = 1.0
     static let radius: CGFloat = 0.0 // Sharp corners for Mondrian look
@@ -42,7 +42,7 @@ extension Color {
 
 // MARK: - Models
 
-struct ArrayStatus: Codable {
+struct ArrayStatus: Codable, Sendable {
     let status: String
     let version: String
     let hostname: String
@@ -54,7 +54,7 @@ struct ArrayStatus: Codable {
     }
 }
 
-struct IngestRequest: Codable {
+struct IngestRequest: Codable, Sendable {
     let sourceType: String
     let title: String
     var content: String?
@@ -81,7 +81,7 @@ struct IngestRequest: Codable {
     }
 }
 
-struct IngestResponse: Codable {
+struct IngestResponse: Codable, Sendable {
     let success: Bool
     let message: String
     let filePath: String?
@@ -94,12 +94,12 @@ struct IngestResponse: Codable {
     }
 }
 
-struct QueueResponse: Codable {
+struct QueueResponse: Codable, Sendable {
     let count: Int
     let items: [QueueItem]
 }
 
-struct QueueItem: Codable, Identifiable {
+struct QueueItem: Codable, Identifiable, Sendable {
     let file: String
     let title: String
     let sourceType: String
@@ -154,3 +154,92 @@ struct Conversation: Identifiable, Codable {
         updatedAt = Date()
     }
 }
+
+// MARK: - API Response Models
+
+struct SessionsListResponse: Codable, Sendable {
+    let count: Int
+    let sessions: [SessionSummary]
+}
+
+struct SessionSummary: Codable, Identifiable, Sendable {
+    let id: String
+    let timestamp: String
+    let client: String
+    let project: String?
+    let contextForNext: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, timestamp, client, project
+        case contextForNext = "context_for_next"
+    }
+}
+
+// MARK: - Session Create
+
+struct SessionDecision: Codable, Sendable {
+    let what: String
+    let why: String
+    let confidence: String
+    init(what: String, why: String, confidence: String = "medium") {
+        self.what = what; self.why = why; self.confidence = confidence
+    }
+}
+
+struct SessionLearning: Codable, Sendable {
+    let topic: String
+    let insight: String
+    let source: String?
+    init(topic: String, insight: String, source: String? = nil) {
+        self.topic = topic; self.insight = insight; self.source = source
+    }
+}
+
+struct SessionTodo: Codable, Sendable {
+    let task: String
+    let priority: String
+    let due: String?
+    init(task: String, priority: String = "medium", due: String? = nil) {
+        self.task = task; self.priority = priority; self.due = due
+    }
+}
+
+struct SessionFileChange: Codable, Sendable {
+    let path: String
+    let action: String
+    let purpose: String?
+    enum CodingKeys: String, CodingKey { case path, action, purpose }
+    init(path: String, action: String, purpose: String? = nil) {
+        self.path = path; self.action = action; self.purpose = purpose
+    }
+}
+
+struct SessionCreate: Codable, Sendable {
+    let client: String
+    let model: String?
+    let project: String?
+    let durationMinutes: Int?
+    let decisions: [SessionDecision]
+    let learnings: [SessionLearning]
+    let todos: [SessionTodo]
+    let artifactsCreated: [String]
+    let fileChanges: [SessionFileChange]
+    let contextForNext: String?
+
+    enum CodingKeys: String, CodingKey {
+        case client, model, project
+        case durationMinutes = "duration_minutes"
+        case decisions, learnings, todos
+        case artifactsCreated = "artifacts_created"
+        case fileChanges = "file_changes"
+        case contextForNext = "context_for_next"
+    }
+}
+
+struct SessionCreateResponse: Codable, Sendable {
+    let id: String
+    let timestamp: String
+    let client: String
+}
+
+

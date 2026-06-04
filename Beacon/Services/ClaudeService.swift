@@ -1,6 +1,7 @@
 import Foundation
+import Combine
 
-class ClaudeService: ObservableObject {
+class ClaudeService: ObservableObject, LLMService {
     @Published var isLoading = false
     @Published var error: String?
     
@@ -31,19 +32,14 @@ class ClaudeService: ObservableObject {
         userMessage: String,
         conversationHistory: [Message],
         systemPrompt: String = "You are a helpful AI assistant for The Array knowledge system.",
-        model: String = "claude-3-5-sonnet-20241022"
+        model: String = "claude-haiku-4-5-20251001"
     ) async throws -> String {
         
-        guard let apiKey = getAPIKey(), !apiKey.isEmpty else {
+        guard let rawKey = getAPIKey(), !rawKey.isEmpty else {
             throw ClaudeError.noAPIKey
         }
-        
-        // Fetch context from Array
-        let recentSessions = try? await ArrayService.shared.getRecentSessions(limit: 3)
-        let contextPrompt = buildContextPrompt(recentSessions: recentSessions)
-        
-        // Combine system prompt with context
-        let fullSystemPrompt = systemPrompt + "\n\n" + contextPrompt
+        let apiKey = rawKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let fullSystemPrompt = systemPrompt
         
         var request = URLRequest(url: URL(string: baseURL)!)
         request.httpMethod = "POST"
@@ -61,8 +57,9 @@ class ClaudeService: ObservableObject {
         var finalMessages = apiMessages
         finalMessages.append(["role": "user", "content": userMessage])
         
+        let resolvedModel = model.isEmpty ? "claude-haiku-4-5-20251001" : model
         let body: [String: Any] = [
-            "model": model,
+            "model": resolvedModel,
             "max_tokens": 4096,
             "system": fullSystemPrompt,
             "messages": finalMessages
@@ -77,6 +74,12 @@ class ClaudeService: ObservableObject {
         }
         
         if httpResponse.statusCode != 200 {
+            #if DEBUG
+            if let errorString = String(data: data, encoding: .utf8) {
+                print("🔴 RAW API ERROR: \(errorString)")
+            }
+            #endif
+
             // Try to parse error
             if let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let errorObj = errorJson["error"] as? [String: Any],
@@ -94,27 +97,6 @@ class ClaudeService: ObservableObject {
         }
         
         return content
-    }
-    
-    // MARK: - Context Builder
-    
-    private func buildContextPrompt(recentSessions: [Conversation]?) -> String {
-        guard let sessions = recentSessions, !sessions.isEmpty else {
-            return ""
-        }
-        
-        var context = "## CONTEXT FROM RECENT SESSIONS\n"
-        
-        for session in sessions {
-            context += "\n--- Session: \(session.title) (\(session.createdAt.formatted())) ---\n"
-            // Take last 3 messages of each session for brevity
-            let recentMessages = session.messages.suffix(3)
-            for msg in recentMessages {
-                context += "\(msg.role.rawValue.uppercased()): \(msg.content.prefix(200))...\n"
-            }
-        }
-        
-        return context
     }
 }
 
@@ -152,3 +134,4 @@ enum ClaudeError: LocalizedError {
         }
     }
 }
+
