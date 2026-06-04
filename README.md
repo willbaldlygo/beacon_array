@@ -7,7 +7,7 @@ Beacon is an experimental, personal iOS app. it was developed iteratively, spora
 Built with SwiftUI, styled with a simple Mondrian-inspired design system. Tailscale provides connectivity via mobile data while away from my home wifi. 
 
 ## Features
-In an attempt to minimise the number of apps I use each day (because ADHD) Beacon has been given a variety of tools.
+I've been working toward a set of interconnected systems and workflows that increase my efficiency and productivity. One of my goals is to minimise the number of apps I interaxt with each day (because ADHD). For those reasons Beacon has been given a variety of tools.
 
 - **Chat** — conversational AI via Claude Haiku 4.5 (cloud) or Google's Gemma4 E4B (on-device), with options to attach URLs or files from the array as extra context
 - **Voice** — record or import audio and transcribe entirely on-device via WhisperKit
