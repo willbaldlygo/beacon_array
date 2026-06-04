@@ -19,9 +19,7 @@ In an attempt to minimise the number of apps I use each day (because ADHD) Beaco
 
 ---
 
-## On-Device AI
-
-The slightly idiosyncratic stack:
+## On-Device AI and the slightly idiosyncratic stack:
 
 ### Chat — LiteRT-LM + Gemma 4 E4B
 - Runtime: [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM) (Google's edge inference framework, Swift API)
