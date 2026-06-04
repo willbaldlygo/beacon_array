@@ -19,6 +19,14 @@ In an attempt to minimise the number of apps I use each day (because ADHD) Beaco
 
 ---
 
+## Screenshots
+
+| Chat | Tasks | Files | Voice |
+|------|-------|-------|-------|
+| ![Chat](screenshots/chat.PNG) | ![Tasks](screenshots/tasks.PNG) | ![Files](screenshots/files.PNG) | ![Voice](screenshots/voice.PNG) |
+
+---
+
 ## On-Device AI and the slightly idiosyncratic stack:
 
 ### Chat — LiteRT-LM + Gemma 4 E4B
