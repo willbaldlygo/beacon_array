@@ -18,10 +18,9 @@ actor ArrayService {
         self.decoder = JSONDecoder()
     }
 
-    private func getAPIKey() throws -> String {
-        guard let key = KeychainHelper.get(key: "array_api_key"), !key.isEmpty else {
-            throw ArrayError.noAPIKey
-        }
+    private func getAPIKey() async throws -> String {
+        let key: String? = await MainActor.run { KeychainHelper.get(key: "array_api_key") }
+        guard let key, !key.isEmpty else { throw ArrayError.noAPIKey }
         return key.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
@@ -30,11 +29,11 @@ actor ArrayService {
     func getStatus() async throws -> ArrayStatus {
         let url = URL(string: "\(baseURL)/api/v1/status")!
         var request = URLRequest(url: url)
-        request.setValue("Bearer \(try getAPIKey())", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
-        return try decoder.decode(ArrayStatus.self, from: data)
+        return try await MainActor.run { try decoder.decode(ArrayStatus.self, from: data) }
     }
 
     // MARK: - Ingest
@@ -44,22 +43,18 @@ actor ArrayService {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(try getAPIKey())", forHTTPHeaderField: "Authorization")
-        urlRequest.httpBody = try encoder.encode(request)
+        urlRequest.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
+        urlRequest.httpBody = try await MainActor.run { try encoder.encode(request) }
 
         let (data, response) = try await session.data(for: urlRequest)
         try validateResponse(response)
-        return try decoder.decode(IngestResponse.self, from: data)
+        return try await MainActor.run { try decoder.decode(IngestResponse.self, from: data) }
     }
 
     func saveNote(title: String, content: String, tags: [String] = []) async throws -> IngestResponse {
-        let request = IngestRequest(
-            sourceType: "note",
-            title: title,
-            content: content,
-            device: "beacon",
-            tags: tags
-        )
+        let request = await MainActor.run {
+            IngestRequest(sourceType: "note", title: title, content: content, device: "beacon", tags: tags)
+        }
         return try await ingest(request)
     }
 
@@ -68,24 +63,21 @@ actor ArrayService {
             "**\(msg.role.rawValue.capitalized)**: \(msg.content)"
         }.joined(separator: "\n\n")
 
-        let request = IngestRequest(
-            sourceType: "session_trace",
-            title: "Beacon Conversation - \(conversation.title)",
-            content: content,
-            device: "beacon",
-            tags: ["beacon", "conversation", "trace"]
-        )
+        let request = await MainActor.run {
+            IngestRequest(sourceType: "session_trace", title: "Beacon Conversation - \(conversation.title)",
+                          content: content, device: "beacon", tags: ["beacon", "conversation", "trace"])
+        }
         return try await ingest(request)
     }
 
     func getRecentSessions(limit: Int = 5) async throws -> [SessionSummary] {
         let url = URL(string: "\(baseURL)/api/v1/sessions/recent?limit=\(limit)")!
         var request = URLRequest(url: url)
-        request.setValue("Bearer \(try getAPIKey())", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
-        return try decoder.decode(SessionsListResponse.self, from: data).sessions
+        return try await MainActor.run { try decoder.decode(SessionsListResponse.self, from: data) }.sessions
     }
 
     func createSession(_ payload: SessionCreate) async throws -> SessionCreateResponse {
@@ -93,12 +85,12 @@ actor ArrayService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(try getAPIKey())", forHTTPHeaderField: "Authorization")
-        request.httpBody = try encoder.encode(payload)
+        request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
+        request.httpBody = try await MainActor.run { try encoder.encode(payload) }
 
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
-        return try decoder.decode(SessionCreateResponse.self, from: data)
+        return try await MainActor.run { try decoder.decode(SessionCreateResponse.self, from: data) }
     }
 
     func writeFile(path: String, content: String) async throws -> WriteResponse {
@@ -106,12 +98,12 @@ actor ArrayService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(try getAPIKey())", forHTTPHeaderField: "Authorization")
-        request.httpBody = try encoder.encode(WriteRequest(path: path, content: content, create_directories: true))
+        request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
+        request.httpBody = try await MainActor.run { try encoder.encode(WriteRequest(path: path, content: content, create_directories: true)) }
 
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
-        return try decoder.decode(WriteResponse.self, from: data)
+        return try await MainActor.run { try decoder.decode(WriteResponse.self, from: data) }
     }
 
     // MARK: - Queue
@@ -119,11 +111,11 @@ actor ArrayService {
     func getQueue() async throws -> QueueResponse {
         let url = URL(string: "\(baseURL)/api/v1/ingest/queue")!
         var request = URLRequest(url: url)
-        request.setValue("Bearer \(try getAPIKey())", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
-        return try decoder.decode(QueueResponse.self, from: data)
+        return try await MainActor.run { try decoder.decode(QueueResponse.self, from: data) }
     }
 
     // MARK: - Health
@@ -131,7 +123,7 @@ actor ArrayService {
     func checkHealth() async throws -> Bool {
         let url = URL(string: "\(baseURL)/api/v1/ingest/health")!
         var request = URLRequest(url: url)
-        request.setValue("Bearer \(try getAPIKey())", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
