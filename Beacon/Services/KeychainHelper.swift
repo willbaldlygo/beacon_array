@@ -12,7 +12,9 @@ class KeychainHelper {
             kSecValueData: data,
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
-            kSecAttrAccount: account
+            kSecAttrAccount: account,
+            // Prevents the key from riding an iCloud/iTunes backup onto another device.
+            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         ] as CFDictionary
         
         // Add item

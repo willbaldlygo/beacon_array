@@ -1,10 +1,7 @@
 import Foundation
 import Combine
 
-class ClaudeService: ObservableObject, LLMService {
-    @Published var isLoading = false
-    @Published var error: String?
-    
+class ClaudeService: LLMService {
     private let baseURL = "https://api.anthropic.com/v1/messages"
     private let apiVersion = "2023-06-01"
     
@@ -47,13 +44,17 @@ class ClaudeService: ObservableObject, LLMService {
         request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         request.setValue(apiVersion, forHTTPHeaderField: "anthropic-version")
         
-        // Format messages for API
-        // Filter out system messages from history as they go in system parameter
-        let apiMessages = conversationHistory.filter { $0.role != .system }.map { msg -> [String: String] in
-            return ["role": msg.role.rawValue, "content": msg.content]
-        }
-        
-        // Add current user message
+        // Build message list from history, honouring the LLMService contract:
+        // conversationHistory's last item is the current user turn (added by
+        // ChatViewModel before calling here), so drop it to avoid duplication,
+        // then append userMessage as the live turn.
+        let apiMessages = conversationHistory
+            .filter { $0.role != .system }
+            .dropLast()
+            .map { msg -> [String: String] in
+                ["role": msg.role.rawValue, "content": msg.content]
+            }
+
         var finalMessages = apiMessages
         finalMessages.append(["role": "user", "content": userMessage])
         

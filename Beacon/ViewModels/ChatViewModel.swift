@@ -114,14 +114,11 @@ class ChatViewModel: ObservableObject {
             
             let assistantMsg = Message(role: .assistant, content: responseText)
             conversation.addMessage(assistantMsg)
-            
-            // 5. Log to Array
-            try await saveConversationToArray()
-            
+
         } catch {
             self.error = error.localizedDescription
         }
-        
+
         // Clear attached files after sending (regardless of success/failure)
         attachedContext.removeAll()
         
@@ -162,9 +159,7 @@ class ChatViewModel: ObservableObject {
             
             let assistantMsg = Message(role: .assistant, content: responseText)
             conversation.addMessage(assistantMsg)
-            
-            try await saveConversationToArray()
-            
+
         } catch {
             self.error = "PM Mode failed: \(error.localizedDescription)"
             isPMMode = false
