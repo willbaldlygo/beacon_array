@@ -4,9 +4,9 @@
 
 Beacon is an experimental, personal iOS app. It was developed iteratively, sporadically, and as much as a learning exercise as an attempt to un-bung some of my daily workflow bottlenecks. It provides multiple avenues for interacting with my home server. The home server in question is a Raspberry Pi5 based system called the Array, exposed via Cloudflare tunnel and various API gateways. The Array contains all my research (either PDFs or .md transcripts/summaries) and work related documents (as .md files), as well as various skills.md files, my to-do lists and detailed daily activity logs, all of which are accessible to AI agents on both my iPhone and MacBooks. Beacon gives me a means of quickly recording new ideas in a space all my agents can access, and tools for retrieving and interrogating knowledge. On-device support for voice transcription and the model switch enabling a local model was included as part of my ongoing efforts to reduce the environmental impact of my AI use.
 
-It isn't all that pretty, but it doesn't need to be. It isn't a product, it's a DIY solution made to fit around specific user constraints. It's also a reflection of the philosophy developing through my ongoing experiments in system design.
+Beacon features a beautiful, high-fidelity **Neo-Mondrian** design system designed and refined with **Google Stitch**. It draws inspiration from De Stijl principles, modernizing them with a technical, high-performance edge: strict 1px black grid dividers, a warm off-white paper background, high-contrast borders, capsule-pill styled action controls with solid offset drop shadows, custom rotating orbital graphics, and a bouncing audio acoustic field.
 
-Built with SwiftUI, styled with a simple Mondrian-inspired design system. Tailscale provides connectivity via mobile data while away from the home network.
+Built with SwiftUI. Tailscale provides connectivity via mobile data while away from the home network.
 
 ## Features
 
@@ -24,9 +24,9 @@ I've been working toward a set of interconnected systems and workflows that incr
 
 ## Screenshots
 
-| Chat | Tasks | Files | Voice |
-|------|-------|-------|-------|
-| ![Chat](screenshots/chat.PNG) | ![Tasks](screenshots/tasks.PNG) | ![Files](screenshots/files.PNG) | ![Voice](screenshots/voice.PNG) |
+| Chat | Tasks | Files | Voice | System |
+|------|-------|-------|-------|--------|
+| ![Chat](screenshots/chat.png) | ![Tasks](screenshots/tasks.png) | ![Files](screenshots/files.png) | ![Voice](screenshots/voice.png) | ![System](screenshots/system.png) |
 
 ---
 

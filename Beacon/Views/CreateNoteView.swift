@@ -23,7 +23,7 @@ struct CreateNoteView: View {
                 
                 ScrollView {
                     VStack(spacing: 24) {
-                        Divider().background(AppTheme.ink)
+                        Divider().background(AppTheme.primary)
                         
                         // Note Type Picker
                         MondrianPicker(
@@ -31,17 +31,12 @@ struct CreateNoteView: View {
                             selection: $isVoiceMode,
                             options: [false, true] // false = Text, true = Voice
                         )
-                        // Custom wrapper to map bool to labels for the picker would be ideal, 
-                        // but MondrianPicker uses CustomStringConvertible. 
-                        // Let's keep it simple for now or create a quick wrapper if needed.
-                        // Actually, let's just use a custom view here or update MondrianPicker to handle labels.
-                        // For speed, let's just inline a custom picker look using the same style.
                         .hidden() // Hiding the generic one to implement specific labels below
                         .overlay(
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("NOTE TYPE")
                                     .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                    .foregroundStyle(AppTheme.ink.opacity(0.6))
+                                    .foregroundStyle(AppTheme.primary.opacity(0.6))
                                 
                                 HStack(spacing: 0) {
                                     pickerButton(title: "TEXT", isSelected: !isVoiceMode) { isVoiceMode = false }
@@ -69,14 +64,14 @@ struct CreateNoteView: View {
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text("TRANSCRIPT")
                                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                            .foregroundStyle(AppTheme.ink.opacity(0.6))
+                                            .foregroundStyle(AppTheme.primary.opacity(0.6))
                                         
                                         Text(noteService.transcribedText)
-                                            .font(.system(.body, design: .serif))
+                                            .font(.system(.body, design: .monospaced))
                                             .padding(12)
                                             .frame(maxWidth: .infinity, alignment: .leading)
-                                            .background(AppTheme.paper)
-                                            .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                                            .background(AppTheme.surfaceContainerLowest)
+                                            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                                     }
                                 }
                             } else {
@@ -96,7 +91,7 @@ struct CreateNoteView: View {
                                         .frame(maxWidth: .infinity)
                                 }
                             }
-                            .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.accentOchre))
+                            .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.tertiaryFixed))
                             .disabled(noteTitle.isEmpty || isSubmitting || (!isVoiceMode && noteContent.isEmpty))
                             .opacity((noteTitle.isEmpty || isSubmitting || (!isVoiceMode && noteContent.isEmpty)) ? 0.5 : 1.0)
                             
@@ -117,7 +112,7 @@ struct CreateNoteView: View {
                     Text("CREATE NOTE")
                         .font(.system(.headline, design: .monospaced))
                         .tracking(4)
-                        .foregroundStyle(AppTheme.ink)
+                        .foregroundStyle(AppTheme.primary)
                 }
             }
             .alert("Error", isPresented: $showError) {
@@ -142,11 +137,9 @@ struct CreateNoteView: View {
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                // Selected: Ochre background (Yellow), Black Text (from design rule)
-                // Unselected: Paper background (White), Black Text (opacity 0.6)
-                .background(isSelected ? AppTheme.accentOchre : AppTheme.paper)
-                .foregroundStyle(AppTheme.ink.opacity(isSelected ? 1.0 : 0.6))
-                .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                .background(isSelected ? AppTheme.tertiaryFixed : AppTheme.surfaceContainerLowest)
+                .foregroundStyle(AppTheme.primary.opacity(isSelected ? 1.0 : 0.6))
+                .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
         }
         .buttonStyle(.plain)
     }
@@ -195,39 +188,38 @@ struct VoiceRecordingView: View {
                     Spacer()
                 }
                 .padding()
-                .background(AppTheme.paper)
-                .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                .background(AppTheme.surfaceContainerLowest)
+                .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
             } else {
                 Button(action: toggleRecording) {
                     HStack(spacing: 16) {
-                        // Colored Circle, NO outline
                         Circle()
-                            .fill(noteService.isRecording ? AppTheme.accentRed : AppTheme.accentBlue)
+                            .fill(noteService.isRecording ? AppTheme.error : AppTheme.secondary)
                             .frame(width: 44, height: 44)
                             .overlay(
                                 Image(systemName: noteService.isRecording ? "stop.fill" : "mic.fill")
                                     .font(.system(size: 20))
-                                    .foregroundStyle(AppTheme.paper) // Red/Blue -> White Text
+                                    .foregroundStyle(Color.white)
                             )
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text(noteService.isRecording ? "Reflect..." : "Tap to Record")
                                 .font(.system(.subheadline, design: .monospaced))
                                 .fontWeight(.bold)
-                                .foregroundStyle(AppTheme.ink)
+                                .foregroundStyle(AppTheme.primary)
                             
                             if noteService.isRecording {
                                 Text("Recording in progress")
                                     .font(.caption)
-                                    .foregroundStyle(AppTheme.accentRed)
+                                    .foregroundStyle(AppTheme.error)
                             }
                         }
                         
                         Spacer()
                     }
                     .padding(16)
-                    .background(AppTheme.paper)
-                    .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                    .background(AppTheme.surfaceContainerLowest)
+                    .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                 }
                 .buttonStyle(.plain)
             }

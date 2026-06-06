@@ -40,7 +40,7 @@ struct FileBrowserView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle")
                     .font(.largeTitle)
-                    .foregroundStyle(AppTheme.accentRed)
+                    .foregroundStyle(AppTheme.error)
                     Text(error)
                         .multilineTextAlignment(.center)
                     Button("Retry") {
@@ -60,27 +60,28 @@ struct FileBrowserView: View {
                                 } label: {
                                     Text(crumb.name)
                                         .font(.system(.caption, design: .monospaced))
-                                        .foregroundStyle(AppTheme.ink)
+                                        .foregroundStyle(AppTheme.primary)
                                         .padding(.vertical, 6)
                                         .padding(.horizontal, 10)
-                                        .background(AppTheme.paper)
-                                        .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                                        .background(AppTheme.surfaceContainerLowest)
+                                        .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                                 }
                                 if index < breadcrumbSegments.count - 1 {
                                     Image(systemName: "chevron.right")
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundStyle(AppTheme.ink.opacity(0.6))
+                                        .foregroundStyle(AppTheme.primary.opacity(0.6))
                                 }
                             }
                         }
                         .padding(.vertical, 6)
                         .padding(.horizontal, 4)
                     }
-                    .listRowBackground(AppTheme.paper)
+                    .listRowBackground(AppTheme.surfaceContainerLowest)
                     .listRowSeparator(.hidden)
                     
                     if service.items.isEmpty {
                         Text("Empty directory")
+                            .font(.system(.body, design: .monospaced))
                             .foregroundStyle(.secondary)
                             .listRowBackground(Color.clear)
                     } else {
@@ -91,7 +92,7 @@ struct FileBrowserView: View {
                                 } label: {
                                     FileRow(item: item)
                                 }
-                                .listRowBackground(AppTheme.paper)
+                                .listRowBackground(AppTheme.surfaceContainerLowest)
                                 .listRowSeparator(.hidden)
                                 .padding(.vertical, 4)
                             } else {
@@ -107,7 +108,7 @@ struct FileBrowserView: View {
                                         FileRow(item: item)
                                     }
                                     .buttonStyle(.plain)
-                                    .listRowBackground(AppTheme.paper)
+                                    .listRowBackground(AppTheme.surfaceContainerLowest)
                                     .listRowSeparator(.hidden)
                                     .padding(.vertical, 4)
                                 } else {
@@ -116,7 +117,7 @@ struct FileBrowserView: View {
                                     } label: {
                                         FileRow(item: item)
                                     }
-                                    .listRowBackground(AppTheme.paper)
+                                    .listRowBackground(AppTheme.surfaceContainerLowest)
                                     .listRowSeparator(.hidden)
                                     .padding(.vertical, 4)
                                 }
@@ -174,21 +175,21 @@ struct FileRow: View {
             VStack(alignment: .leading) {
                 Text(item.name)
                     .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(AppTheme.ink)
+                    .foregroundStyle(AppTheme.primary)
                 
                 if let size = item.size {
                     Text(ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file))
-                        .font(.caption)
+                        .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }
             }
             Spacer()
         }
         .padding(12)
-        .background(AppTheme.paper)
+        .background(AppTheme.surfaceContainerLowest)
         .overlay(
             Rectangle()
-                .stroke(AppTheme.ink, lineWidth: 1)
+                .stroke(AppTheme.primary, lineWidth: AppTheme.border)
         )
     }
     
@@ -202,8 +203,8 @@ struct FileRow: View {
     }
     
     var iconColor: Color {
-        if item.isDirectory { return AppTheme.accentOchre }
-        return AppTheme.accentBlue
+        if item.isDirectory { return AppTheme.tertiaryFixed } // Ochre
+        return AppTheme.secondary // Teal
     }
 }
 
@@ -258,18 +259,18 @@ struct FileDetailView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(info.name)
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundStyle(AppTheme.paper)
+                        .foregroundStyle(AppTheme.onSecondary)
                         .lineLimit(1)
                     Text(ByteCountFormatter.string(fromByteCount: Int64(info.size), countStyle: .file) + "  ·  " + formattedDate(info.modified))
                         .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(AppTheme.paper.opacity(0.7))
+                        .foregroundStyle(AppTheme.onSecondary.opacity(0.7))
                 }
                 Spacer()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(AppTheme.accentBlue)
-            .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+            .background(AppTheme.secondary)
+            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
         }
     }
     
@@ -289,14 +290,14 @@ struct FileDetailView: View {
                 TextEditor(text: $editBuffer)
                     .font(.system(.body, design: .monospaced))
                     .scrollContentBackground(.hidden)
-                    .background(AppTheme.paper)
-                    .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                    .background(AppTheme.surfaceContainerLowest)
+                    .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                     .padding(12)
             } else {
                 ScrollView {
                     Text(content)
                         .font(.system(.body, design: .monospaced))
-                        .foregroundStyle(AppTheme.ink)
+                        .foregroundStyle(AppTheme.primary)
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(16)
@@ -311,11 +312,11 @@ struct FileDetailView: View {
         VStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.largeTitle)
-                .foregroundStyle(AppTheme.accentRed)
+                .foregroundStyle(AppTheme.error)
             Text(error)
                 .font(.system(.caption, design: .monospaced))
                 .multilineTextAlignment(.center)
-                .foregroundStyle(AppTheme.accentRed)
+                .foregroundStyle(AppTheme.error)
             Button("Retry") {
                 Task { service.error = nil; await loadFile() }
             }
@@ -330,11 +331,11 @@ struct FileDetailView: View {
         if let msg = saveMessage {
             Text(msg)
                 .font(.system(size: 12, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.paper)
+                .foregroundStyle(AppTheme.onSecondary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-                .background(AppTheme.accentBlue)
-                .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                .background(AppTheme.secondary)
+                .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                 .padding(.bottom, 24)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         }
@@ -348,7 +349,7 @@ struct FileDetailView: View {
                     if hasUnsavedChanges { showDiscardAlert = true } else { isEditing = false }
                 }
                 .font(.system(.body, design: .monospaced))
-                .foregroundStyle(AppTheme.ink)
+                .foregroundStyle(AppTheme.primary)
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button { Task { await saveFile() } } label: {
@@ -356,7 +357,7 @@ struct FileDetailView: View {
                     else { Text("Save").font(.system(.body, design: .monospaced)).bold() }
                 }
                 .disabled(isSaving)
-                .foregroundStyle(AppTheme.accentBlue)
+                .foregroundStyle(AppTheme.secondary)
             }
         } else if canEdit {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -365,7 +366,7 @@ struct FileDetailView: View {
                     isEditing = true
                 }
                 .font(.system(.body, design: .monospaced))
-                .foregroundStyle(AppTheme.ink)
+                .foregroundStyle(AppTheme.primary)
             }
         }
     }
@@ -412,4 +413,3 @@ struct FileDetailView: View {
         return iso
     }
 }
-

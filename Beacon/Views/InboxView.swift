@@ -12,7 +12,7 @@ struct InboxView: View {
                 AppTheme.background.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    Divider().background(AppTheme.ink)
+                    Divider().background(AppTheme.primary)
                     
                     if isLoading {
                         ProgressView()
@@ -21,9 +21,9 @@ struct InboxView: View {
                         VStack(spacing: 16) {
                             Image(systemName: "exclamationmark.triangle")
                                 .font(.system(size: 32))
-                                .foregroundStyle(AppTheme.accentRed)
+                                .foregroundStyle(AppTheme.error)
                             Text(error)
-                                .font(.system(.body, design: .serif))
+                                .font(.system(.body, design: .monospaced))
                                 .multilineTextAlignment(.center)
                             Button("RETRY") {
                                 Task { await loadItems() }
@@ -35,10 +35,10 @@ struct InboxView: View {
                         VStack(spacing: 16) {
                             Image(systemName: "tray")
                                 .font(.system(size: 32))
-                                .foregroundStyle(AppTheme.ink.opacity(0.3))
+                                .foregroundStyle(AppTheme.primary.opacity(0.3))
                             Text("INBOX EMPTY")
                                 .font(.system(.headline, design: .monospaced))
-                                .foregroundStyle(AppTheme.ink.opacity(0.5))
+                                .foregroundStyle(AppTheme.primary.opacity(0.5))
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
@@ -65,7 +65,7 @@ struct InboxView: View {
                         showingCreateNote = true
                     } label: {
                         Circle()
-                            .fill(AppTheme.accentRed)
+                            .fill(AppTheme.error)
                             .frame(width: 36, height: 36)
                             .overlay(
                                 Image(systemName: "plus")
@@ -80,7 +80,7 @@ struct InboxView: View {
                     Text("INBOX")
                         .font(.system(.headline, design: .monospaced))
                         .tracking(4)
-                        .foregroundStyle(AppTheme.ink)
+                        .foregroundStyle(AppTheme.primary)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -88,7 +88,7 @@ struct InboxView: View {
                         Task { await loadItems() }
                     } label: {
                         Circle()
-                            .fill(AppTheme.accentBlue)
+                            .fill(AppTheme.secondary)
                             .frame(width: 36, height: 36)
                             .overlay(
                                 Image(systemName: "arrow.clockwise")
@@ -139,15 +139,15 @@ struct MondrianInboxRow: View {
                 .frame(width: 8)
                 .overlay(
                     Rectangle()
-                        .stroke(AppTheme.ink, lineWidth: 1)
+                        .stroke(AppTheme.primary, lineWidth: AppTheme.border)
                 )
             
             VStack(alignment: .leading, spacing: 8) {
                 Text(item.title)
-                    .font(.system(.headline, design: .serif))
-                    .fontWeight(.regular)
+                    .font(.system(.headline, design: .monospaced))
+                    .fontWeight(.bold)
                     .shadow(radius: 0)
-                    .foregroundStyle(AppTheme.ink)
+                    .foregroundStyle(AppTheme.primary)
                     .lineLimit(2)
                 
                 HStack {
@@ -159,18 +159,14 @@ struct MondrianInboxRow: View {
                     Text(formatDate(item.capturedAt))
                         .font(.system(size: 10, design: .monospaced))
                 }
-                .foregroundStyle(AppTheme.ink.opacity(0.6))
+                .foregroundStyle(AppTheme.primary.opacity(0.6))
             }
             .padding(16)
         }
-        .background(AppTheme.paper)
+        .background(AppTheme.surfaceContainerLowest)
         .overlay(
             Rectangle()
-                .stroke(AppTheme.ink, lineWidth: 1)
-        )
-        .overlay(
-            Rectangle()
-                .stroke(AppTheme.ink, lineWidth: 1)
+                .stroke(AppTheme.primary, lineWidth: AppTheme.border)
         )
     }
     
@@ -186,9 +182,9 @@ struct MondrianInboxRow: View {
     
     private func colorForType(_ type: String) -> Color {
         switch type {
-        case "note": return AppTheme.accentOchre
-        case "session_trace": return AppTheme.accentBlue
-        case "pdf": return AppTheme.accentRed
+        case "note": return AppTheme.tertiaryFixed
+        case "session_trace": return AppTheme.secondary
+        case "pdf": return AppTheme.error
         default: return Color.gray
         }
     }
@@ -200,5 +196,3 @@ struct MondrianInboxRow: View {
         return dateString
     }
 }
-
-

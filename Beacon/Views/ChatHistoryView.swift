@@ -21,10 +21,10 @@ struct ChatHistoryView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.system(size: 40))
-                            .foregroundStyle(AppTheme.ink.opacity(0.3))
+                            .foregroundStyle(AppTheme.primary.opacity(0.3))
                         Text("NO SAVED CHATS")
                             .font(.system(size: 13, weight: .bold, design: .monospaced))
-                            .foregroundStyle(AppTheme.ink.opacity(0.4))
+                            .foregroundStyle(AppTheme.primary.opacity(0.4))
                     }
                 } else {
                     List {
@@ -36,22 +36,22 @@ struct ChatHistoryView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text(conversation.title.uppercased())
                                         .font(.system(size: 13, weight: .bold, design: .monospaced))
-                                        .foregroundStyle(AppTheme.ink)
+                                        .foregroundStyle(AppTheme.primary)
                                         .lineLimit(1)
                                     HStack(spacing: 12) {
                                         Text("\(conversation.messages.count) MSG\(conversation.messages.count == 1 ? "" : "S")")
                                             .font(.system(size: 10, design: .monospaced))
-                                            .foregroundStyle(AppTheme.ink.opacity(0.5))
+                                            .foregroundStyle(AppTheme.primary.opacity(0.5))
                                         Text(Self.dateFormatter.string(from: conversation.updatedAt).uppercased())
                                             .font(.system(size: 10, design: .monospaced))
-                                            .foregroundStyle(AppTheme.ink.opacity(0.5))
+                                            .foregroundStyle(AppTheme.primary.opacity(0.5))
                                     }
                                 }
                                 .padding(.vertical, 4)
                             }
                             .buttonStyle(.plain)
-                            .listRowBackground(AppTheme.paper)
-                            .listRowSeparatorTint(AppTheme.ink.opacity(0.15))
+                            .listRowBackground(AppTheme.surfaceContainerLowest)
+                            .listRowSeparatorTint(AppTheme.primary.opacity(0.15))
                         }
                         .onDelete { indexSet in
                             for idx in indexSet {
@@ -69,12 +69,12 @@ struct ChatHistoryView: View {
                     Text("PAST CHATS")
                         .font(.system(.headline, design: .monospaced))
                         .tracking(4)
-                        .foregroundStyle(AppTheme.ink)
+                        .foregroundStyle(AppTheme.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("DONE") { dismiss() }
                         .font(.system(size: 13, weight: .bold, design: .monospaced))
-                        .foregroundStyle(AppTheme.accentBlue)
+                        .foregroundStyle(AppTheme.secondary)
                 }
             }
         }

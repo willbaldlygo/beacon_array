@@ -39,7 +39,7 @@ struct ChatView: View {
                 
                 VStack(spacing: 0) {
                     Divider()
-                        .background(AppTheme.ink)
+                        .background(AppTheme.primary)
                     
                     // PM Mode Banner
                     if viewModel.isPMMode {
@@ -57,11 +57,11 @@ struct ChatView: View {
                                     .font(.system(size: 10, weight: .bold))
                             }
                         }
-                        .foregroundStyle(AppTheme.paper)
+                        .foregroundStyle(AppTheme.onSecondary)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
-                        .background(AppTheme.accentBlue)
-                        .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                        .background(AppTheme.secondary)
+                        .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                     }
                     
                     MessageListView(viewModel: viewModel)
@@ -121,14 +121,14 @@ struct ChatView: View {
                     Text("BEACON")
                         .font(.system(.headline, design: .monospaced))
                         .tracking(4)
-                        .foregroundStyle(AppTheme.ink)
+                        .foregroundStyle(AppTheme.primary)
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingHistory = true
                     } label: {
-                        MondrianCircleIcon(color: AppTheme.ink.opacity(0.5), systemImage: "clock.arrow.circlepath")
+                        MondrianCircleIcon(color: AppTheme.primary.opacity(0.5), systemImage: "clock.arrow.circlepath")
                     }
                 }
 
@@ -141,7 +141,7 @@ struct ChatView: View {
                         exportTags = ""
                         showingExportSheet = true
                     }) {
-                        MondrianCircleIcon(color: AppTheme.accentBlue, customImage: "floppy-disk")
+                        MondrianCircleIcon(color: AppTheme.secondary, customImage: "floppy-disk")
                     }
                     .disabled(isExportDisabled)
                 }
@@ -151,7 +151,7 @@ struct ChatView: View {
                         ConversationStore.shared.save(viewModel.conversation)
                         viewModel.clearChat()
                     }) {
-                        MondrianCircleIcon(color: AppTheme.accentBlue, systemImage: "square.and.pencil")
+                        MondrianCircleIcon(color: AppTheme.secondary, systemImage: "square.and.pencil")
                     }
                 }
             }
@@ -184,7 +184,7 @@ struct MessageListView: View {
                     if let error = viewModel.error {
                         Text("Error: \(error)")
                             .font(.system(.caption, design: .monospaced))
-                            .foregroundColor(AppTheme.accentRed)
+                            .foregroundColor(AppTheme.error)
                             .padding()
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -225,7 +225,7 @@ struct ChatInputArea: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-                .background(AppTheme.ink)
+                .background(AppTheme.primary)
             
             // Attached Context Stack
             if !viewModel.attachedContext.isEmpty {
@@ -235,23 +235,23 @@ struct ChatInputArea: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "doc.text")
                                     .font(.system(size: 10))
-                                    .foregroundColor(AppTheme.ink)
+                                    .foregroundColor(AppTheme.primary)
                                 Text(file.name)
                                     .font(.system(size: 12, design: .monospaced))
-                                    .foregroundColor(AppTheme.ink)
+                                    .foregroundColor(AppTheme.primary)
                                 
                                 Button {
                                     viewModel.removeFile(file)
                                 } label: {
                                     Image(systemName: "xmark")
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(AppTheme.ink)
+                                        .foregroundColor(AppTheme.primary)
                                 }
                             }
                             .padding(.vertical, 6)
                             .padding(.horizontal, 10)
-                            .background(AppTheme.paper)
-                            .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                            .background(AppTheme.surfaceContainerLowest)
+                            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                         }
                     }
                     .padding(.horizontal, 16)
@@ -278,25 +278,25 @@ struct ChatInputArea: View {
                     } label: {
                         Image(systemName: "plus")
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(AppTheme.ink)
+                            .foregroundStyle(AppTheme.primary)
                             .frame(width: 44, height: 50)
-                            .background(AppTheme.paper)
+                            .background(AppTheme.surfaceContainerLowest)
                             .overlay(
                                 Rectangle()
-                                    .stroke(AppTheme.ink, lineWidth: 1)
+                                    .stroke(AppTheme.primary, lineWidth: AppTheme.border)
                             )
                     }
                 }
                 
                 TextField("Enter message...", text: $viewModel.currentInput, axis: .vertical)
-                    .font(.system(.body, design: .serif))
-                    .foregroundColor(AppTheme.ink)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundColor(AppTheme.primary)
                     .textFieldStyle(.plain)
                     .padding(16)
-                    .background(AppTheme.paper)
+                    .background(AppTheme.surfaceContainerLowest)
                     .overlay(
                         Rectangle()
-                            .stroke(AppTheme.ink, lineWidth: 1)
+                            .stroke(AppTheme.primary, lineWidth: AppTheme.border)
                     )
                     .frame(minHeight: 50)
                 
@@ -307,9 +307,9 @@ struct ChatInputArea: View {
                 } label: {
                     Image(systemName: "arrow.up")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(AppTheme.paper)
+                        .foregroundStyle(AppTheme.onPrimary)
                         .frame(width: 50, height: 50)
-                        .background(viewModel.currentInput.isEmpty ? Color.gray : AppTheme.accentRed)
+                        .background(viewModel.currentInput.isEmpty ? Color.gray : AppTheme.error)
                 }
                 .disabled(viewModel.currentInput.isEmpty || viewModel.isLoading)
             }
@@ -370,20 +370,20 @@ struct FilePickerSheet: View {
                 } label: {
                     HStack(spacing: 16) {
                         Circle()
-                            .fill(AppTheme.accentOchre)
+                            .fill(AppTheme.tertiaryFixed)
                             .frame(width: 36, height: 36)
                             .overlay(
                                 Image(systemName: "externaldrive")
                                     .font(.system(size: 16, weight: .bold))
-                                    .foregroundStyle(Color.white)
+                                    .foregroundStyle(AppTheme.primary)
                             )
                         Text("Browse All Files")
                             .font(.system(.body, design: .monospaced))
-                            .foregroundColor(AppTheme.ink)
+                            .foregroundColor(AppTheme.primary)
                     }
                     .padding(.vertical, 8)
                 }
-                .listRowBackground(AppTheme.paper)
+                .listRowBackground(AppTheme.surfaceContainerLowest)
                 
                 NavigationLink {
                     FileBrowserView(path: "projects/constellation/beacon/logs", mode: .picker) { selectedFile in
@@ -394,7 +394,7 @@ struct FilePickerSheet: View {
                 } label: {
                     HStack(spacing: 16) {
                         Circle()
-                            .fill(AppTheme.accentBlue)
+                            .fill(AppTheme.secondary)
                             .frame(width: 36, height: 36)
                             .overlay(
                                 Image(systemName: "bubble.left.and.bubble.right")
@@ -403,11 +403,11 @@ struct FilePickerSheet: View {
                             )
                         Text("Chat Log")
                             .font(.system(.body, design: .monospaced))
-                            .foregroundColor(AppTheme.ink)
+                            .foregroundColor(AppTheme.primary)
                     }
                     .padding(.vertical, 8)
                 }
-                .listRowBackground(AppTheme.paper)
+                .listRowBackground(AppTheme.surfaceContainerLowest)
                 
                 NavigationLink {
                     FileBrowserView(path: "knowledge/inbox", mode: .picker) { selectedFile in
@@ -418,7 +418,7 @@ struct FilePickerSheet: View {
                 } label: {
                     HStack(spacing: 16) {
                         Circle()
-                            .fill(AppTheme.accentRed)
+                            .fill(AppTheme.error)
                             .frame(width: 36, height: 36)
                             .overlay(
                                 Image(systemName: "tray.and.arrow.down")
@@ -427,11 +427,11 @@ struct FilePickerSheet: View {
                             )
                         Text("Inbox")
                             .font(.system(.body, design: .monospaced))
-                            .foregroundColor(AppTheme.ink)
+                            .foregroundColor(AppTheme.primary)
                     }
                     .padding(.vertical, 8)
                 }
-                .listRowBackground(AppTheme.paper)
+                .listRowBackground(AppTheme.surfaceContainerLowest)
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
@@ -465,22 +465,23 @@ struct MondrianMessageBubble: View {
                 // Label
                 Text(message.role == .user ? "USER" : "SYSTEM")
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundStyle(AppTheme.ink.opacity(0.6))
+                    .foregroundStyle(AppTheme.primary.opacity(0.6))
                     .padding(.horizontal, 4)
                 
                 // Content Card
                 Text(message.content)
-                    .font(.system(.body, design: message.role == .assistant ? .monospaced : .serif))
+                    .font(.system(.body, design: .monospaced))
                     .textSelection(.enabled)
                     .fontWeight(.regular)
                     .shadow(radius: 0)
-                    .foregroundStyle(AppTheme.ink)
+                    .foregroundStyle(AppTheme.primary)
                     .lineSpacing(4)
                     .padding(16)
-                    .background(message.role == .user ? AppTheme.accentOchre : Color.white)
+                    .background(message.role == .user ? AppTheme.tertiaryFixed : AppTheme.surfaceContainerLowest)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(
-                        // Only stroke if background is white (System/Assistant)
-                        message.role == .user ? nil : Rectangle().stroke(AppTheme.ink, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(AppTheme.primary, lineWidth: AppTheme.border)
                     )
             }
             
@@ -517,4 +518,3 @@ struct MondrianCircleIcon: View {
             }
     }
 }
-

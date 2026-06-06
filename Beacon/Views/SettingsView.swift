@@ -23,7 +23,7 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(spacing: 24) {
-                        Divider().background(AppTheme.ink)
+                        Divider().background(AppTheme.primary)
                             .padding(.bottom, 8)
 
                         // Status Card
@@ -31,16 +31,16 @@ struct SettingsView: View {
                             HStack {
                                 Text("SYSTEM STATUS")
                                     .font(.system(size: 12, weight: .bold, design: .monospaced))
-                                    .foregroundStyle(AppTheme.paper)
+                                    .foregroundStyle(AppTheme.onSecondary)
                                 Spacer()
                                 Circle()
-                                    .fill(isConnected ? Color.green : AppTheme.accentRed)
+                                    .fill(isConnected ? Color.green : AppTheme.error)
                                     .frame(width: 8, height: 8)
-                                    .overlay(Circle().stroke(AppTheme.paper, lineWidth: 1))
+                                    .overlay(Circle().stroke(AppTheme.onSecondary, lineWidth: 1))
                             }
                             .padding(12)
-                            .background(AppTheme.accentBlue)
-                            .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                            .background(AppTheme.secondary)
+                            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
 
                             VStack(alignment: .leading, spacing: 12) {
                                 StatusRow(label: "CONNECTION", value: isConnected ? "ONLINE" : "OFFLINE")
@@ -58,21 +58,21 @@ struct SettingsView: View {
                                         Image(systemName: "arrow.clockwise")
                                     }
                                 }
-                                .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.accentBlue))
+                                .buttonStyle(MondrianPillButtonStyle(backgroundColor: AppTheme.secondary, verticalPadding: 12))
                                 .disabled(isChecking)
                                 .padding(.top, 8)
 
                                 if let error = errorMessage {
                                     Text(error)
                                         .font(.system(.caption, design: .monospaced))
-                                        .foregroundColor(AppTheme.accentRed)
+                                        .foregroundColor(AppTheme.error)
                                         .padding(.vertical, 4)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
                             .padding(16)
-                            .background(AppTheme.paper)
-                            .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                            .background(AppTheme.surfaceContainerLowest)
+                            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                         }
 
                         // Quick Actions
@@ -81,13 +81,13 @@ struct SettingsView: View {
                         Button {
                             showingCreateNote = true
                         } label: {
-                            HStack {
+                            HStack(spacing: 8) {
                                 Image(systemName: "note.text")
                                 Text("CREATE NOTE")
-                                Spacer()
                             }
+                            .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.accentBlue))
+                        .buttonStyle(MondrianPillButtonStyle(backgroundColor: AppTheme.surfaceContainerLowest, verticalPadding: 14))
 
                         // Local Model
                         SectionHeader(title: "LOCAL MODEL")
@@ -96,6 +96,9 @@ struct SettingsView: View {
                             downloadService: downloadService,
                             selectedBackend: $selectedBackend
                         )
+
+                        // System Visualization
+                        SystemVisualizationPanel()
                     }
                     .padding(16)
                 }
@@ -110,7 +113,7 @@ struct SettingsView: View {
                     Text("SYSTEM")
                         .font(.system(.headline, design: .monospaced))
                         .tracking(4)
-                        .foregroundStyle(AppTheme.ink)
+                        .foregroundStyle(AppTheme.primary)
                 }
             }
             .task {
@@ -144,8 +147,6 @@ struct SettingsView: View {
     }
 }
 
-
-
 // MARK: - Local Model Section
 
 struct LocalModelSection: View {
@@ -160,10 +161,10 @@ struct LocalModelSection: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("GEMMA 4 E4B")
                         .font(.system(size: 12, weight: .bold, design: .monospaced))
-                        .foregroundStyle(AppTheme.ink)
+                        .foregroundStyle(AppTheme.primary)
                     Text("3.7 GB · On-device · Private")
                         .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(AppTheme.ink.opacity(0.6))
+                        .foregroundStyle(AppTheme.primary.opacity(0.6))
                 }
                 Spacer()
                 statusBadge
@@ -173,10 +174,10 @@ struct LocalModelSection: View {
             if case .downloading(let progress) = downloadService.state {
                 VStack(alignment: .leading, spacing: 6) {
                     ProgressView(value: progress)
-                        .tint(AppTheme.accentBlue)
+                        .tint(AppTheme.secondary)
                     Text("\(Int(progress * 100))%  ·  3.7 GB total")
                         .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(AppTheme.ink.opacity(0.5))
+                        .foregroundStyle(AppTheme.primary.opacity(0.5))
                 }
             }
 
@@ -188,7 +189,7 @@ struct LocalModelSection: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("ACTIVE MODEL")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundStyle(AppTheme.ink.opacity(0.6))
+                        .foregroundStyle(AppTheme.primary.opacity(0.6))
                     HStack(spacing: 0) {
                         ForEach(["claude", "gemma"], id: \.self) { backend in
                             Button {
@@ -199,11 +200,11 @@ struct LocalModelSection: View {
                                     .fontWeight(.bold)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(selectedBackend == backend ? AppTheme.accentOchre : AppTheme.paper)
-                                    .foregroundStyle(AppTheme.ink)
+                                    .background(selectedBackend == backend ? AppTheme.tertiaryFixed : AppTheme.surfaceContainerLowest)
+                                    .foregroundStyle(AppTheme.primary)
                             }
                             .buttonStyle(.plain)
-                            .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+                            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                         }
                     }
                 }
@@ -218,12 +219,12 @@ struct LocalModelSection: View {
                         Spacer()
                     }
                 }
-                .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.accentRed))
+                .buttonStyle(MondrianPillButtonStyle(backgroundColor: AppTheme.error, verticalPadding: 12))
             }
         }
         .padding(16)
-        .background(AppTheme.paper)
-        .overlay(Rectangle().stroke(AppTheme.ink, lineWidth: 1))
+        .background(AppTheme.surfaceContainerLowest)
+        .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
     }
 
     @ViewBuilder
@@ -231,28 +232,36 @@ struct LocalModelSection: View {
         switch downloadService.state {
         case .notDownloaded:
             Text("NOT DOWNLOADED")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.ink.opacity(0.5))
-                .padding(.horizontal, 8).padding(.vertical, 4)
-                .overlay(Rectangle().stroke(AppTheme.ink.opacity(0.3), lineWidth: 1))
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundStyle(AppTheme.primary.opacity(0.5))
+                .padding(.horizontal, 10).padding(.vertical, 4)
+                .background(AppTheme.surfaceContainerLow)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(AppTheme.primary.opacity(0.3), lineWidth: AppTheme.border))
         case .downloading:
             Text("DOWNLOADING")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.paper)
-                .padding(.horizontal, 8).padding(.vertical, 4)
-                .background(AppTheme.accentBlue)
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundStyle(AppTheme.onSecondary)
+                .padding(.horizontal, 10).padding(.vertical, 4)
+                .background(AppTheme.secondary)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(AppTheme.primary, lineWidth: AppTheme.border))
         case .downloaded:
             Text("READY")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.paper)
-                .padding(.horizontal, 8).padding(.vertical, 4)
-                .background(Color.green)
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundStyle(AppTheme.secondary)
+                .padding(.horizontal, 10).padding(.vertical, 4)
+                .background(Color.white)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(AppTheme.secondary, lineWidth: AppTheme.border))
         case .failed:
             Text("FAILED")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.paper)
-                .padding(.horizontal, 8).padding(.vertical, 4)
-                .background(AppTheme.accentRed)
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundStyle(AppTheme.onError)
+                .padding(.horizontal, 10).padding(.vertical, 4)
+                .background(AppTheme.error)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(AppTheme.primary, lineWidth: AppTheme.border))
         }
     }
 
@@ -265,11 +274,11 @@ struct LocalModelSection: View {
             } label: {
                 HStack {
                     Image(systemName: "arrow.down.circle")
-                    Text("DOWNLOAD GEMMA MODEL  (3.7 GB)")
+                    Text("DOWNLOAD GEMMA MODEL (3.7 GB)")
                     Spacer()
                 }
             }
-            .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.accentBlue))
+            .buttonStyle(MondrianPillButtonStyle(backgroundColor: AppTheme.secondary, verticalPadding: 12))
 
         case .downloading:
             Button {
@@ -281,13 +290,13 @@ struct LocalModelSection: View {
                     Spacer()
                 }
             }
-            .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.accentRed))
+            .buttonStyle(MondrianPillButtonStyle(backgroundColor: AppTheme.error, verticalPadding: 12))
 
         case .failed(let msg):
             VStack(alignment: .leading, spacing: 8) {
                 Text(msg)
                     .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(AppTheme.accentRed)
+                    .foregroundStyle(AppTheme.error)
                     .fixedSize(horizontal: false, vertical: true)
                 Button {
                     downloadService.resumeDownload(hfToken: nil)
@@ -298,7 +307,7 @@ struct LocalModelSection: View {
                         Spacer()
                     }
                 }
-                .buttonStyle(MondrianButtonStyle(backgroundColor: AppTheme.accentOchre))
+                .buttonStyle(MondrianPillButtonStyle(backgroundColor: AppTheme.tertiaryFixed, verticalPadding: 12))
             }
 
         case .downloaded:
@@ -315,12 +324,32 @@ struct StatusRow: View {
         HStack {
             Text(label)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.ink.opacity(0.6))
+                .foregroundStyle(AppTheme.primary.opacity(0.6))
             Spacer()
             Text(value)
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(AppTheme.ink)
+                .foregroundStyle(AppTheme.primary)
         }
+    }
+}
+
+struct SystemVisualizationPanel: View {
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            MondrianOrbitalSystem(isSmall: true, showVoiceIcon: false)
+                .background(Color.white)
+            
+            Text("ORBITAL_CORE_SYNC")
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundStyle(AppTheme.onPrimary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(AppTheme.primary)
+                .clipShape(Capsule())
+                .padding(12)
+        }
+        .frame(height: 256)
+        .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
     }
 }
 
