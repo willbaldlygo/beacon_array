@@ -246,6 +246,13 @@ class ChatViewModel: ObservableObject {
         isPMMode = false
         pmSystemPrompt = nil
     }
+
+    func loadConversation(_ conversation: Conversation) {
+        self.conversation = conversation
+        attachedContext.removeAll()
+        isPMMode = false
+        pmSystemPrompt = nil
+    }
     
     @MainActor
     func ingestURL(_ url: URL) async {
