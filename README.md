@@ -9,7 +9,7 @@ It was developed iteratively, sporadically, and as much as a learning exercise a
 It provides multiple avenues for interacting with my home server. The home server in question is a Raspberry Pi5 based system called the Array. 
 The Array is exposed via Cloudflare tunnel and various API gateways and acts as my knowledge base. It contains all my research (either PDFs or .md transcripts/summaries) and work related documents (as .md files), as well as various skills.md files, shared to-do lists, and detailed daily activity logs - all of which are accessible to AI agents on both my iPhone and MacBooks. 
 
-Beacon gives me a means of quickly recording new ideas in a space all my agents can access. It provides tools for retrieving and interrogating shared knowledge. It provides a means of interacting with an AI model with access to a shared persistent memory. As someone quite open about my galloping ADHD, propping up my own buggy and limited working memory was a strong motivator when first planning this app.
+Beacon gives me a means of quickly recording new ideas in a space all my agents can access. It provides tools for retrieving and interrogating shared knowledge. It provides a means of interacting with an AI model attached to a persistent shared memory. As someone with galloping ADHD, propping up my own limited working memory was a strong motivator when planning this app.
 
 On-device support for voice transcription and the switch enabling a local model in the chat UI were included as part of my ongoing efforts to reduce the environmental impact of my AI use.
 
