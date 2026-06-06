@@ -20,7 +20,7 @@ Built with SwiftUI. Tailscale provides connectivity via mobile data while away f
 
 ## Features
 
-I've been working toward a set of interconnected systems and workflows that increase my efficiency and productivity. One of my goals is to minimise the number of apps I interact with each day (because ADHD). For those reasons Beacon has been given a variety of tools.
+I've been working toward a set of interconnected systems and workflows that increase my efficiency and productivity, and support my slightly wonky executive functioning system. One of my goals is to minimise the number of apps I interact with each day to reduce cognitive load whilst I work. For those reasons Beacon has been given a wide variety of tools.
 
 - **Chat** — conversational AI via Claude Haiku 4.5 (cloud) or Google's Gemma 4 E4B (on-device), with options to attach URLs or files from the Array as extra context
 - **Voice** — record or import audio and transcribe entirely on-device via WhisperKit
