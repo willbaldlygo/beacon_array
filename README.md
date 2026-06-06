@@ -4,8 +4,10 @@
 
 Beacon is an experimental, personal iOS app. The first I've built in fact. 
 It was developed iteratively, sporadically, and as much as a learning exercise as an attempt to un-bung some of my daily workflow bottlenecks. 
+
 It provides multiple avenues for interacting with my home server. The home server in question is a Raspberry Pi5 based system called the Array. 
 The Array is exposed via Cloudflare tunnel and various API gateways and acts as my knowledge base. It contains all my research (either PDFs or .md transcripts/summaries) and work related documents (as .md files), as well as various skills.md files, shared to-do lists, and detailed daily activity logs - all of which are accessible to AI agents on both my iPhone and MacBooks. 
+
 Beacon gives me a means of quickly recording new ideas in a space all my agents can access, and tools for retrieving and interrogating knowledge. 
 
 On-device support for voice transcription and the switch enabling a local model in the chat UI were included as part of my ongoing efforts to reduce the environmental impact of my AI use.
