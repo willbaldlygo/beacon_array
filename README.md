@@ -69,7 +69,7 @@ I've been working toward a set of interconnected systems and workflows that incr
 
 ## Known Limitations
 
-- **Gemma is slow** — expect 20–60 seconds per response on CPU. This is a hardware constraint. The GPU backend would be faster but requires iOS memory entitlements only available on a paid Apple Developer account.
+- **Gemma4 is a tad slow** — expect 20–60 seconds per response on CPU. This is a hardware constraint. The GPU backend would be faster but requires iOS memory entitlements only available on a paid Apple Developer account.
 - **First WhisperKit transcription triggers a silent download** — the Whisper model (~630 MB) downloads automatically on first use with no visible progress bar. Subsequent transcriptions are fast.
 - **Gemma handles short conversations well; long or complex tasks less so** — the 8192-token KV cache limits context. PM and Log workflows always route to Claude for this reason.
 - **Requires a specific backend** — Beacon is built around a custom home server API. Without a compatible backend, most features will fail gracefully but won't function. The backend URL and API key are configured in `ArrayService.swift` and the System tab respectively.
