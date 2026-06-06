@@ -27,6 +27,7 @@ struct ChatView: View {
     @State private var showingExportSheet = false
     @State private var exportTitle = ""
     @State private var exportTags = ""
+    @State private var showingHistory = false
     
     var body: some View {
         NavigationStack {
@@ -104,6 +105,11 @@ struct ChatView: View {
                     }
                 )
             }
+            .sheet(isPresented: $showingHistory) {
+                ChatHistoryView { conversation in
+                    viewModel.loadConversation(conversation)
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(AppTheme.background, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -117,25 +123,35 @@ struct ChatView: View {
                         .tracking(4)
                         .foregroundStyle(AppTheme.ink)
                 }
-                
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingHistory = true
+                    } label: {
+                        MondrianCircleIcon(color: AppTheme.ink.opacity(0.5), systemImage: "clock.arrow.circlepath")
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     let isExportDisabled = viewModel.conversation.messages.isEmpty || viewModel.isLoading
                     Button(action: {
+                        ConversationStore.shared.save(viewModel.conversation)
                         let dateString = DateFormatter.localizedString(from: Date(), dateStyle: .medium, timeStyle: .short)
                         exportTitle = "Chat - \(dateString)"
                         exportTags = ""
                         showingExportSheet = true
                     }) {
-                        MondrianCircleIcon(color: AppTheme.accentBlue, systemImage: "icloud.and.arrow.up")
+                        MondrianCircleIcon(color: AppTheme.accentBlue, customImage: "floppy-disk")
                     }
                     .disabled(isExportDisabled)
                 }
-                
+
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
+                        ConversationStore.shared.save(viewModel.conversation)
                         viewModel.clearChat()
                     }) {
-                        MondrianCircleIcon(color: AppTheme.accentRed, systemImage: "trash")
+                        MondrianCircleIcon(color: AppTheme.accentBlue, systemImage: "square.and.pencil")
                     }
                 }
             }
@@ -476,17 +492,27 @@ struct MondrianMessageBubble: View {
 // Visual-only component for toolbar icons
 struct MondrianCircleIcon: View {
     let color: Color
-    let systemImage: String
-    
+    var systemImage: String? = nil
+    var customImage: String? = nil
+
     var body: some View {
         Circle()
             .fill(color)
             .frame(width: 36, height: 36)
-            .overlay(
-                Image(systemName: systemImage)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(Color.white)
-            )
+            .overlay {
+                if let name = systemImage {
+                    Image(systemName: name)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Color.white)
+                } else if let name = customImage {
+                    Image(name)
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .foregroundStyle(Color.white)
+                }
+            }
     }
 }
 

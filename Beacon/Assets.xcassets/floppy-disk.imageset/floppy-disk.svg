@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Floppy disk body with cut top-right corner -->
+  <path d="M3 2 L16 2 L21 7 L21 22 L3 22 Z" fill="black"/>
+  <!-- Label area cutout -->
+  <rect x="5" y="3" width="10" height="8" rx="0.5" fill="white"/>
+  <!-- Write-protect notch (top-right, in the angled corner) -->
+  <rect x="16.5" y="2.5" width="2" height="2.5" rx="0.3" fill="white"/>
+  <!-- Metal shutter cutout -->
+  <rect x="5.5" y="16" width="13" height="4.5" rx="0.5" fill="white"/>
+  <!-- Disk oval in shutter -->
+  <ellipse cx="12" cy="18.2" rx="3.5" ry="1.5" fill="black"/>
+</svg>
