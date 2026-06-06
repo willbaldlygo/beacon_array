@@ -51,7 +51,7 @@ struct ChatView: View {
                                 .tracking(2)
                             Spacer()
                             Button {
-                                viewModel.clearChat()
+                                viewModel.exitPMMode()
                             } label: {
                                 Image(systemName: "xmark")
                                     .font(.system(size: 10, weight: .bold))
@@ -260,30 +260,32 @@ struct ChatInputArea: View {
             }
             
             HStack(alignment: .bottom, spacing: 12) {
-                // Attach Button
-                Menu {
-                    Button {
-                        showingFilePicker = true
+                // Attach Button — hidden in PM mode (attachments not applicable)
+                if !viewModel.isPMMode {
+                    Menu {
+                        Button {
+                            showingFilePicker = true
+                        } label: {
+                            Label("Attach File", systemImage: "doc")
+                        }
+
+                        Button {
+                            urlInput = ""
+                            showingURLInput = true
+                        } label: {
+                            Label("Paste Link", systemImage: "link")
+                        }
                     } label: {
-                        Label("Attach File", systemImage: "doc")
+                        Image(systemName: "plus")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(AppTheme.ink)
+                            .frame(width: 44, height: 50)
+                            .background(AppTheme.paper)
+                            .overlay(
+                                Rectangle()
+                                    .stroke(AppTheme.ink, lineWidth: 1)
+                            )
                     }
-                    
-                    Button {
-                        urlInput = ""
-                        showingURLInput = true
-                    } label: {
-                        Label("Paste Link", systemImage: "link")
-                    }
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(AppTheme.ink)
-                        .frame(width: 44, height: 50)
-                        .background(AppTheme.paper)
-                        .overlay(
-                            Rectangle()
-                                .stroke(AppTheme.ink, lineWidth: 1)
-                        )
                 }
                 
                 TextField("Enter message...", text: $viewModel.currentInput, axis: .vertical)

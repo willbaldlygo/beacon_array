@@ -104,9 +104,10 @@ class ChatViewModel: ObservableObject {
             }
         }
         
-        // 4. Send to Claude
+        // 4. Send — PM mode always uses Claude regardless of backend setting
+        let llmService: LLMService = isPMMode ? claudeService : activeLLMService
         do {
-            let responseText = try await activeLLMService.sendMessage(
+            let responseText = try await llmService.sendMessage(
                 userMessage: inputToSend,
                 conversationHistory: conversation.messages,
                 systemPrompt: systemPrompt
@@ -245,6 +246,12 @@ class ChatViewModel: ObservableObject {
         attachedContext.removeAll()
         isPMMode = false
         pmSystemPrompt = nil
+    }
+
+    func exitPMMode() {
+        isPMMode = false
+        pmSystemPrompt = nil
+        attachedContext.removeAll()
     }
 
     func loadConversation(_ conversation: Conversation) {
