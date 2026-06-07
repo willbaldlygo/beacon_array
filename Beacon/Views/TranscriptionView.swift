@@ -74,12 +74,16 @@ private struct TranscriptionContent: View {
                         .background(AppTheme.surface)
                         .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
                     
-                    AcousticFieldVisualizer()
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity)
-                        .background(AppTheme.surface)
-                        .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
-                        .padding(.bottom, 24)
+                    if viewModel.state == .recording {
+                        AcousticFieldVisualizer(audioLevel: viewModel.audioLevel)
+                            .padding(.vertical, 16)
+                            .frame(maxWidth: .infinity)
+                            .background(AppTheme.surface)
+                            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
+                            .padding(.bottom, 24)
+                    } else {
+                        Spacer().frame(height: 24)
+                    }
                 } else {
                     Divider().background(AppTheme.primary)
                         .padding(.bottom, 24)
@@ -112,7 +116,7 @@ private struct IdleControls: View {
     @Binding var showingFilePicker: Bool
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 32) {
             // Action Section
             VStack(spacing: 16) {
                 Button {
@@ -175,122 +179,48 @@ private struct IdleControls: View {
             }
             .padding(.horizontal, 16)
             
-            // Status strip
-            SystemStatusStrip()
-                .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
-            
-            // Formats Card
-            SupportedFormatsGrid()
-                .padding(.horizontal, 16)
-        }
-    }
-}
-
-private struct SystemStatusStrip: View {
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                // Section 1: System Status
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("SYSTEM STATUS")
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.white.opacity(0.7))
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 8, height: 8)
-                        Text("NEURAL ENGINE ONLINE")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .foregroundStyle(Color.white)
-                    }
+            // Subtle status and formats stack
+            VStack(spacing: 20) {
+                // Subtle status
+                HStack {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 6, height: 6)
+                    Text("NEURAL ENGINE ONLINE")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    Spacer()
                 }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Rectangle()
-                    .fill(Color.white.opacity(0.3))
-                    .frame(width: 1)
-                    .frame(maxHeight: .infinity)
-                
-                // Section 2: Privacy Mode
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("PRIVACY MODE")
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.white.opacity(0.7))
-                    HStack(spacing: 6) {
-                        Image(systemName: "shield.fill")
-                            .font(.system(size: 10))
-                            .foregroundStyle(Color.white)
-                        Text("LOCAL-ONLY PROCESSING")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundStyle(Color.white)
-                    }
-                }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .background(AppTheme.primary)
-            .frame(height: 60)
-        }
-    }
-}
-
-private struct SupportedFormatsGrid: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 8) {
-                Image(systemName: "info.circle")
-                    .foregroundColor(AppTheme.primary)
-                Text("SUPPORTED FORMATS")
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
-            }
-            
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 1) {
-                FormatCell(extensionStr: ".WAV", label: "LOSSLESS")
-                FormatCell(extensionStr: ".M4A", label: "COMPRESSED")
-                FormatCell(extensionStr: ".MP3", label: "STANDARD")
-                FormatCell(extensionStr: ".FLAC", label: "HIGH-RES")
-            }
-            .background(AppTheme.primary)
-            .border(AppTheme.primary, width: 1)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Transcription is optimized for clear speech in quiet environments. Ambient noise reduction is applied automatically.")
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(AppTheme.primary)
-                    .padding(.leading, 12)
-                    .overlay(
-                        Rectangle()
-                            .fill(AppTheme.secondary)
-                            .frame(width: 4)
-                            .frame(maxHeight: .infinity),
-                        alignment: .leading
-                    )
-            }
-            .padding(.top, 8)
-        }
-        .padding(16)
-        .background(AppTheme.surface)
-        .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
-    }
-}
-
-struct FormatCell: View {
-    let extensionStr: String
-    let label: String
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(extensionStr)
-                .font(.system(size: 20, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.secondary)
-            Text(label)
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundStyle(AppTheme.primary)
+                .opacity(0.55)
+                
+                Divider().background(AppTheme.primary.opacity(0.15))
+                
+                // Clean text list of formats
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("SUPPORTED FORMATS")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundStyle(AppTheme.primary)
+                        .opacity(0.75)
+                    
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("• .WAV (Lossless)")
+                            Text("• .MP3 (Standard)")
+                        }
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("• .M4A (Compressed)")
+                            Text("• .FLAC (High-Res)")
+                        }
+                    }
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(AppTheme.primary)
+                    .opacity(0.65)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.horizontal, 24)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(AppTheme.surface)
     }
 }
 
@@ -400,7 +330,11 @@ private struct TranscriptResult: View {
                         Spacer()
                     }
                 }
-                .buttonStyle(MondrianPillButtonStyle(backgroundColor: AppTheme.surfaceContainerLowest, verticalPadding: 10))
+                .buttonStyle(MondrianPillButtonStyle(
+                    backgroundColor: AppTheme.surfaceContainerLowest,
+                    horizontalPadding: 16,
+                    fixedHeight: 48
+                ))
 
                 Button {
                     Task { await viewModel.saveToArray(transcript: transcript) }
@@ -413,7 +347,8 @@ private struct TranscriptResult: View {
                 }
                 .buttonStyle(MondrianPillButtonStyle(
                     backgroundColor: viewModel.savedToArray ? AppTheme.tertiaryFixed : AppTheme.secondary,
-                    verticalPadding: 10
+                    horizontalPadding: 16,
+                    fixedHeight: 48
                 ))
                 .disabled(viewModel.savedToArray)
             }

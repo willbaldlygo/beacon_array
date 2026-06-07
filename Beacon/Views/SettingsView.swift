@@ -335,21 +335,10 @@ struct StatusRow: View {
 
 struct SystemVisualizationPanel: View {
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            MondrianOrbitalSystem(isSmall: true, showVoiceIcon: false)
-                .background(Color.white)
-            
-            Text("ORBITAL_CORE_SYNC")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.onPrimary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(AppTheme.primary)
-                .clipShape(Capsule())
-                .padding(12)
-        }
-        .frame(height: 256)
-        .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
+        MondrianOrbitalSystem(isSmall: true, showVoiceIcon: false)
+            .background(Color.white)
+            .frame(height: 256)
+            .overlay(Rectangle().stroke(AppTheme.primary, lineWidth: AppTheme.border))
     }
 }
 

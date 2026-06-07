@@ -58,7 +58,14 @@ actor WhisperTranscriptionService {
     private func getWhisperKit() async throws -> WhisperKit {
         if let whisperKit { return whisperKit }
         do {
-            let config = WhisperKitConfig(model: WhisperTranscriptionService.modelName)
+            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            let downloadDir = appSupport.appendingPathComponent("whisperkit_models", isDirectory: true)
+            try? FileManager.default.createDirectory(at: downloadDir, withIntermediateDirectories: true)
+
+            let config = WhisperKitConfig(
+                model: WhisperTranscriptionService.modelName,
+                downloadBase: downloadDir
+            )
             let kit = try await WhisperKit(config)
             self.whisperKit = kit
             return kit

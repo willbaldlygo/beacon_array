@@ -16,10 +16,12 @@ class TranscriptionViewModel: NSObject, ObservableObject {
     @Published var state: TranscriptionState = .idle
     @Published var savedToArray = false
     @Published var recordingSeconds: Int = 0
+    @Published var audioLevel: Float = 0.0
 
     private var audioRecorder: AVAudioRecorder?
     private var currentRecordingURL: URL?
     private var recordingTimer: Timer?
+    private var levelTimer: Timer?
 
     // MARK: - Recording
 
@@ -64,6 +66,7 @@ class TranscriptionViewModel: NSObject, ObservableObject {
         do {
             audioRecorder = try AVAudioRecorder(url: url, settings: settings)
             audioRecorder?.delegate = self
+            audioRecorder?.isMeteringEnabled = true
             audioRecorder?.record()
             currentRecordingURL = url
             recordingSeconds = 0
@@ -75,6 +78,9 @@ class TranscriptionViewModel: NSObject, ObservableObject {
     }
 
     private func startTimer() {
+        recordingSeconds = 0
+        audioLevel = 0.0
+
         recordingTimer?.invalidate()
         recordingTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
@@ -82,11 +88,36 @@ class TranscriptionViewModel: NSObject, ObservableObject {
                 self.recordingSeconds += 1
             }
         }
+
+        levelTimer?.invalidate()
+        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, case .recording = self.state, let recorder = self.audioRecorder else { return }
+                recorder.updateMeters()
+                let avg = recorder.averagePower(forChannel: 0)
+                
+                // Map dB scale (-50dB to 0dB) to normalized range (0.0 to 1.0)
+                let minDb: Float = -50.0
+                let normalizedLevel: Float
+                if avg < minDb {
+                    normalizedLevel = 0.0
+                } else if avg >= 0.0 {
+                    normalizedLevel = 1.0
+                } else {
+                    normalizedLevel = (avg - minDb) / (-minDb)
+                }
+                
+                // Exponential decay smoothing
+                self.audioLevel = self.audioLevel * 0.4 + normalizedLevel * 0.6
+            }
+        }
     }
 
     func stopRecording() {
         recordingTimer?.invalidate()
         recordingTimer = nil
+        levelTimer?.invalidate()
+        levelTimer = nil
         audioRecorder?.stop()
         audioRecorder = nil
         try? AVAudioSession.sharedInstance().setActive(false)
@@ -128,6 +159,8 @@ class TranscriptionViewModel: NSObject, ObservableObject {
     func reset() {
         recordingTimer?.invalidate()
         recordingTimer = nil
+        levelTimer?.invalidate()
+        levelTimer = nil
         audioRecorder?.stop()
         audioRecorder = nil
         if let url = currentRecordingURL {
@@ -137,6 +170,7 @@ class TranscriptionViewModel: NSObject, ObservableObject {
         recordingSeconds = 0
         state = .idle
         savedToArray = false
+        audioLevel = 0.0
     }
 }
 

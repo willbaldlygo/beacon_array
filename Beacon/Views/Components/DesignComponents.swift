@@ -131,6 +131,7 @@ struct MondrianPillButtonStyle: ButtonStyle {
     var hasOffsetShadow: Bool = true
     var verticalPadding: CGFloat = 16
     var horizontalPadding: CGFloat = 24
+    var fixedHeight: CGFloat? = nil
     
     func makeBody(configuration: Configuration) -> some View {
         let isPressed = configuration.isPressed
@@ -151,8 +152,11 @@ struct MondrianPillButtonStyle: ButtonStyle {
             .font(.system(.subheadline, design: .monospaced))
             .fontWeight(.bold)
             .textCase(.uppercase)
+            .lineLimit(1)
+            .minimumScaleFactor(0.65)
             .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, verticalPadding)
+            .frame(height: fixedHeight)
+            .padding(.vertical, fixedHeight == nil ? verticalPadding : 0)
             .foregroundStyle(textColor)
             .background(
                 Capsule()
@@ -254,20 +258,7 @@ struct MondrianOrbitalSystem: View {
             }
             .frame(width: outerOrbitSize, height: outerOrbitSize)
             
-            // Sync Label Badge (For Voice screen)
-            if !isSmall {
-                VStack {
-                    Spacer()
-                    Text("ORBITAL_CORE_SYNC")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundStyle(AppTheme.onPrimary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
-                        .background(AppTheme.primary)
-                        .clipShape(Capsule())
-                        .offset(y: -12)
-                }
-            }
+            // Sync Label Badge (For Voice screen) - Removed
         }
         .frame(height: containerHeight)
         .frame(maxWidth: .infinity)
@@ -289,34 +280,27 @@ struct MondrianOrbitalSystem: View {
 // MARK: - Acoustic Field Visualizer
 
 struct AcousticFieldVisualizer: View {
-    @State private var animate = false
+    let audioLevel: Float
     
     var body: some View {
-        VStack(spacing: 8) {
-            Text("ACOUSTIC FIELD ACTIVE")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppTheme.primary.opacity(0.6))
-                .tracking(2)
-            
-            HStack(spacing: 4) {
-                bar(height: 12, activeHeight: 28, color: AppTheme.primary, duration: 0.5)
-                bar(height: 24, activeHeight: 44, color: AppTheme.secondary, duration: 0.6)
-                bar(height: 16, activeHeight: 32, color: AppTheme.primary, duration: 0.4)
-                bar(height: 32, activeHeight: 52, color: AppTheme.error, duration: 0.75)
-                bar(height: 20, activeHeight: 36, color: AppTheme.secondary, duration: 0.55)
-            }
-            .frame(height: 52)
+        HStack(spacing: 4) {
+            bar(baseHeight: 12, maxHeight: 28, color: AppTheme.primary, scaleMultiplier: 1.0)
+            bar(baseHeight: 24, maxHeight: 44, color: AppTheme.secondary, scaleMultiplier: 1.2)
+            bar(baseHeight: 16, maxHeight: 32, color: AppTheme.primary, scaleMultiplier: 0.8)
+            bar(baseHeight: 32, maxHeight: 52, color: AppTheme.error, scaleMultiplier: 1.5)
+            bar(baseHeight: 20, maxHeight: 36, color: AppTheme.secondary, scaleMultiplier: 1.1)
         }
-        .onAppear {
-            animate = true
-        }
+        .frame(height: 52)
     }
     
     @ViewBuilder
-    private func bar(height: CGFloat, activeHeight: CGFloat, color: Color, duration: Double) -> some View {
+    private func bar(baseHeight: CGFloat, maxHeight: CGFloat, color: Color, scaleMultiplier: Float) -> some View {
+        let level = min(max(audioLevel * scaleMultiplier, 0.0), 1.0)
+        let height = baseHeight + (maxHeight - baseHeight) * CGFloat(level)
+        
         RoundedRectangle(cornerRadius: 1)
             .fill(color)
-            .frame(width: 4, height: animate ? activeHeight : height)
-            .animation(.easeInOut(duration: duration).repeatForever(autoreverses: true), value: animate)
+            .frame(width: 4, height: height)
+            .animation(.interactiveSpring(response: 0.15, dampingFraction: 0.6, blendDuration: 0), value: height)
     }
 }
