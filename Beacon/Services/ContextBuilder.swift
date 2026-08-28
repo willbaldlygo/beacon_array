@@ -23,14 +23,18 @@ class ContextBuilder {
         dateFormatter.dateFormat = "EEEE, d MMMM yyyy"
         let currentDate = dateFormatter.string(from: Date())
         
+        // No task list is injected here. TaskService held a device-local
+        // UserDefaults list unrelated to PM/tasks.md, still seeded with its
+        // February placeholders ("Finish Beacon v1", "Plan Forge Architecture"),
+        // so every conversation was told those were Will's active tasks. The
+        // real list arrives via PMWorkflowService when /PM is triggered, read
+        // from PM/tasks.md -- the one source of truth.
         var prompt = """
         \(assistantIdentity)
 
         **Today's Date:** \(currentDate)
         
         \(UserProfile.shared.getFormattedProfile())
-        
-        \(TaskService.shared.getFormattedTasks())
         
         ## The Array
         The Array is Will's Raspberry Pi-based knowledge system. You have access to recent session context below.

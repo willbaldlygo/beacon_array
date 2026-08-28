@@ -32,7 +32,7 @@ actor ArrayService {
         request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
         return try await MainActor.run { try decoder.decode(ArrayStatus.self, from: data) }
     }
 
@@ -47,7 +47,7 @@ actor ArrayService {
         urlRequest.httpBody = try await MainActor.run { try encoder.encode(request) }
 
         let (data, response) = try await session.data(for: urlRequest)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
         return try await MainActor.run { try decoder.decode(IngestResponse.self, from: data) }
     }
 
@@ -76,7 +76,7 @@ actor ArrayService {
         request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
         return try await MainActor.run { try decoder.decode(SessionsListResponse.self, from: data) }.sessions
     }
 
@@ -89,7 +89,7 @@ actor ArrayService {
         request.httpBody = try await MainActor.run { try encoder.encode(payload) }
 
         let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
         return try await MainActor.run { try decoder.decode(SessionCreateResponse.self, from: data) }
     }
 
@@ -102,7 +102,7 @@ actor ArrayService {
         request.httpBody = try await MainActor.run { try encoder.encode(WriteRequest(path: path, content: content, create_directories: true)) }
 
         let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
         return try await MainActor.run { try decoder.decode(WriteResponse.self, from: data) }
     }
 
@@ -114,7 +114,7 @@ actor ArrayService {
         request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
         return try await MainActor.run { try decoder.decode(QueueResponse.self, from: data) }
     }
 
@@ -126,7 +126,7 @@ actor ArrayService {
         request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
 
         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let status = json["status"] as? String {
@@ -153,7 +153,7 @@ actor ArrayService {
         request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
-        try validateResponse(response)
+        try validateResponse(response, data: data)
 
         let result = try await MainActor.run {
             try JSONDecoder().decode(ExtractResponse.self, from: data)
@@ -170,11 +170,30 @@ actor ArrayService {
 
     // MARK: - Helpers
 
-    private func validateResponse(_ response: URLResponse) throws {
+    /// FastAPI reports errors as `detail`, which is a string for HTTPException
+    /// and an object for the Manager's structured errors. Handle both.
+    private static func detailMessage(from data: Data) -> String? {
+        guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let detail = object["detail"] else { return nil }
+        if let text = detail as? String { return text }
+        if let structured = detail as? [String: Any],
+           let message = structured["message"] as? String { return message }
+        return nil
+    }
+
+    private func validateResponse(_ response: URLResponse, data: Data? = nil) throws {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw ArrayError.invalidResponse
         }
         guard (200...299).contains(httpResponse.statusCode) else {
+            // Surface what the server actually said. Discarding the body turned
+            // TaskViewer's real failure into a bare "Array API error (400)" and
+            // hid the cause for three weeks in August 2026. The Array's refusals
+            // are written to be acted on -- a 403 from files/write names the
+            // Manager tool to use instead -- and are worthless unseen.
+            if let data, let detail = Self.detailMessage(from: data) {
+                throw ArrayError.apiError(statusCode: httpResponse.statusCode, detail: detail)
+            }
             throw ArrayError.httpError(statusCode: httpResponse.statusCode)
         }
     }
@@ -185,6 +204,7 @@ actor ArrayService {
 enum ArrayError: LocalizedError {
     case invalidResponse
     case httpError(statusCode: Int)
+    case apiError(statusCode: Int, detail: String)
     case decodingError(Error)
     case noAPIKey
 
@@ -194,6 +214,8 @@ enum ArrayError: LocalizedError {
             return "Invalid response from The Array"
         case .httpError(let code):
             return "HTTP error \(code)"
+        case .apiError(_, let detail):
+            return detail
         case .decodingError(let error):
             return "Failed to decode response: \(error.localizedDescription)"
         case .noAPIKey:
