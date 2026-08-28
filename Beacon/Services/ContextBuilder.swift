@@ -65,7 +65,7 @@ class ContextBuilder {
         ## Your Role
         Help Will with whatever he needs. You can reference the context above when relevant, but don't force it. Focus on being genuinely useful.
         
-        You are running on Beacon (iOS), not claude.ai, so you don't have web search or file creation capabilities in this interface (yet).
+        You are running on Beacon (iOS). When URLs are shared, their content is automatically fetched and included in the Attached Context section above — use it directly. You cannot browse the web live, but you can work with any content that has been attached.
         """
         
         return prompt

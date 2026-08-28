@@ -135,6 +135,39 @@ actor ArrayService {
         return false
     }
 
+    // MARK: - URL Extraction
+
+    /// Ask the Array to fetch and extract readable content from a URL
+    /// using server-side Mozilla Readability.
+    func extractURL(_ url: URL) async throws -> FileContent {
+        guard var components = URLComponents(string: "\(baseURL)/api/v1/extract") else {
+            throw ArrayError.invalidResponse
+        }
+        components.queryItems = [URLQueryItem(name: "url", value: url.absoluteString)]
+
+        guard let requestURL = components.url else {
+            throw ArrayError.invalidResponse
+        }
+
+        var request = URLRequest(url: requestURL)
+        request.setValue("Bearer \(try await getAPIKey())", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await session.data(for: request)
+        try validateResponse(response)
+
+        let result = try await MainActor.run {
+            try JSONDecoder().decode(ExtractResponse.self, from: data)
+        }
+
+        return FileContent(
+            path: result.url,
+            name: result.title,
+            content: result.content,
+            size: result.contentLength,
+            modified: ISO8601DateFormatter().string(from: Date())
+        )
+    }
+
     // MARK: - Helpers
 
     private func validateResponse(_ response: URLResponse) throws {
@@ -166,5 +199,19 @@ enum ArrayError: LocalizedError {
         case .noAPIKey:
             return "Array API Key not found. Please add it in Settings."
         }
+    }
+}
+
+// MARK: - Extract Response
+
+struct ExtractResponse: Codable, Sendable {
+    let title: String
+    let content: String
+    let url: String
+    let contentLength: Int
+
+    enum CodingKeys: String, CodingKey {
+        case title, content, url
+        case contentLength = "content_length"
     }
 }

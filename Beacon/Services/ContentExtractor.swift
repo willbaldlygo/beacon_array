@@ -29,13 +29,25 @@ class ContentExtractor {
     
     private init() {}
     
-    /// Extract text content from a URL
-    /// - Parameter url: The URL to process
-    /// - Returns: A FileContent object with the extracted text
+    /// Extract text content from a URL.
+    ///
+    /// **Strategy:**
+    /// 1. Try the Array's `/api/v1/extract` endpoint (server-side Readability — handles
+    ///    Webflow, SPAs, and complex markup).
+    /// 2. If the Array is unreachable or fails, fall back to on-device fetch + HTML stripping.
     func extract(from url: URL) async throws -> FileContent {
-        // 1. Determine type (basic check)
+        // 1. Try Array-side extraction first
+        do {
+            let result = try await ArrayService.shared.extractURL(url)
+            print("✅ Array extracted \(result.size) chars from \(url.host ?? url.absoluteString)")
+            return result
+        } catch {
+            print("⚠️ Array extraction failed, falling back to on-device: \(error.localizedDescription)")
+        }
+
+        // 2. Fallback: on-device fetch
         let isPDF = url.pathExtension.lowercased() == "pdf"
-        
+
         if isPDF {
             return try await extractPDF(from: url)
         } else {

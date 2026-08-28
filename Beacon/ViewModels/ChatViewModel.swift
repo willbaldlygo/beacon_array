@@ -86,7 +86,11 @@ class ChatViewModel: ObservableObject {
             // to keep the KV cache free for conversation.
             systemPrompt = ContextBuilder.buildGemmaPrompt(attachedFiles: attachedContext)
         } else {
-            systemPrompt = ContextBuilder.buildMinimalPrompt()
+            // Guarantee attached files are included even if session fetch fails or is disabled
+            systemPrompt = ContextBuilder.buildSystemPrompt(
+                sessions: [],
+                attachedFiles: attachedContext
+            )
 
             let includeContext = UserDefaults.standard.bool(forKey: "includeArrayContext")
             let shouldInclude = UserDefaults.standard.object(forKey: "includeArrayContext") == nil ? true : includeContext
@@ -100,6 +104,7 @@ class ChatViewModel: ObservableObject {
                     )
                 } catch {
                     print("⚠️ Context fetch failed: \(error.localizedDescription)")
+                    // systemPrompt remains the fallback version containing attached files
                 }
             }
         }

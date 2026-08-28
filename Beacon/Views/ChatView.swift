@@ -218,6 +218,7 @@ struct MessageListView: View {
 
 struct ChatInputArea: View {
     @ObservedObject var viewModel: ChatViewModel
+    @StateObject private var transcriptionViewModel = TranscriptionViewModel()
     @Binding var showingFilePicker: Bool
     @Binding var showingURLInput: Bool
     @Binding var urlInput: String
@@ -292,12 +293,22 @@ struct ChatInputArea: View {
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(AppTheme.primary)
                     .textFieldStyle(.plain)
-                    .padding(16)
+                    .padding(.leading, 16)
+                    .padding(.vertical, 16)
+                    .padding(.trailing, 44)
                     .background(AppTheme.surfaceContainerLowest)
                     .overlay(
                         Rectangle()
                             .stroke(AppTheme.primary, lineWidth: AppTheme.border)
                     )
+                    .overlay(alignment: .bottomTrailing) {
+                        ChatVoiceInputButton(
+                            viewModel: transcriptionViewModel,
+                            textInput: $viewModel.currentInput
+                        )
+                        .padding(.trailing, 8)
+                        .padding(.bottom, 9)
+                    }
                     .frame(minHeight: 50)
                 
                 Button {
@@ -516,5 +527,49 @@ struct MondrianCircleIcon: View {
                         .foregroundStyle(Color.white)
                 }
             }
+    }
+}
+
+struct ChatVoiceInputButton: View {
+    @ObservedObject var viewModel: TranscriptionViewModel
+    @Binding var textInput: String
+    
+    var body: some View {
+        Button {
+            if viewModel.state == .recording {
+                viewModel.stopRecording()
+            } else {
+                Task {
+                    await viewModel.requestMicPermissionAndRecord()
+                }
+            }
+        } label: {
+            ZStack {
+                Circle()
+                    .fill(viewModel.state == .recording ? AppTheme.error.opacity(0.2) : Color.clear)
+                    .frame(width: 32, height: 32)
+                
+                if case .transcribing = viewModel.state {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                } else {
+                    Image(systemName: viewModel.state == .recording ? "stop.fill" : "mic.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(viewModel.state == .recording ? AppTheme.error : AppTheme.primary)
+                }
+            }
+        }
+        .onChange(of: viewModel.state) { _, newState in
+            if case .done(let text) = newState {
+                if !textInput.isEmpty {
+                    textInput += " "
+                }
+                textInput += text
+                viewModel.reset()
+            } else if case .failed(let err) = newState {
+                print("Voice input error: \(err)")
+                viewModel.reset()
+            }
+        }
     }
 }
